@@ -15,6 +15,10 @@ var userID = "980523-6032";
 var week = (new Date()).getWeek();
 var today = Math.pow(2, (new Date()).getActualDay());
 
+document.getElementById("userIDLabel").innerHTML = userID;
+document.getElementById("weekLabel").innerHTML = week;
+document.getElementById("dayLabel").innerHTML = today;
+
 var getImage = function () {
     var width = window.innerWidth;
     var height = window.innerHeight - 40;
@@ -64,3 +68,7 @@ document.getElementById("submitSettings").addEventListener("click", function () 
     background.style.backgroundImage = "url(" + getImage() + ")";
     toggleSettings(0);
 })
+
+document.getElementById("cancelSettings").addEventListener("click", function () {
+    toggleSettings(0);
+});
