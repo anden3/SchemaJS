@@ -1,12 +1,87 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
     <script type="text/javascript" src="script.js" defer></script>
     <link type="text/css" rel="stylesheet" href="stylesheet.css">
+
+    <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.indigo-pink.min.css">
+    <script src="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 
-<body>
+<body id="body">
+    <div class="header">
+        <button id="demo-menu-lower-left"
+            class="mdl-button mdl-js-button mdl-button--icon">
+          <i class="material-icons">more_vert</i>
+        </button>
+
+        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect"
+            for="demo-menu-lower-left">
+          <li class="mdl-menu__item" id="settingsButton">Settings</li>
+        </ul>
+        <h3>SchemaJS</h3>
+    </div>
     <div id="schedule"></div>
+    <div id="settings">
+        <div class="row">
+            <button id="settingsBackButton" class="mdl-button mdl-js-button mdl-button--icon">
+                <i class="material-icons">arrow_back</i>
+            </button>
+            <h4>Options</h4>
+        </div>
+        <div class="options">
+            <div class="row">
+                <p>School ID: </p>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="schoolID" />
+                        <label class="mdl-textfield__label" for="schoolID">Number...</label>
+                        <span class="mdl-textfield__error">Input is not a number!</span>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <p>User ID: </p>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" id="userID" />
+                        <label class="mdl-textfield__label" for="userID">Number...</label>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <p>Week: </p>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="week" />
+                        <label class="mdl-textfield__label" for="week">Number...</label>
+                        <span class="mdl-textfield__error">Input is not a number!</span>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <p>Day: </p>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="day" />
+                        <label class="mdl-textfield__label" for="day">Number...</label>
+                        <span class="mdl-textfield__error">Input is not a number!</span>
+                    </div>
+                </form>
+            </div>
+            <div class="buttons">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" id="submitSettings">
+                    Apply
+                </button>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="cancelSettings">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
