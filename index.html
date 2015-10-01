@@ -14,11 +14,11 @@
 <body id="body">
     <div class="header" id="header">
         <h3>SchemaJS</h3>
-        <button id="demo-menu-lower-left" class="mdl-button mdl-js-button mdl-button--icon">
+        <button id="mainMenu" class="mdl-button mdl-js-button mdl-button--icon">
           <i class="material-icons">more_vert</i>
         </button>
 
-        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-left">
+        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="mainMenu">
           <li class="mdl-menu__item" id="settingsButton">Inställningar</li>
         </ul>
     </div>
@@ -58,14 +58,23 @@
                 </form>
             </div>
             <div class="row">
-                <p>Dag (0-6): </p>
-                <form action="#">
+                <p>Dag: </p>
+                <!--<form action="#">
                     <div class="mdl-textfield mdl-js-textfield">
-                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="day" />
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="day" max="4" />
                         <label class="mdl-textfield__label" for="day" id="dayLabel"></label>
                         <span class="mdl-textfield__error">Måste vara ett nummer</span>
                     </div>
-                </form>
+                </form>-->
+                <button id="dayPicker" class="mdl-button mdl-js-button mdl-button--icon"></button>
+
+                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="dayPicker">
+                    <li class="mdl-menu__item" id="Måndag">Måndag</li>
+                    <li class="mdl-menu__item" id="Tisdag">Tisdag</li>
+                    <li class="mdl-menu__item" id="Onsdag">Onsdag</li>
+                    <li class="mdl-menu__item" id="Torsdag">Torsdag</li>
+                    <li class="mdl-menu__item" id="Fredag">Fredag</li>
+                </ul>
             </div>
             <div class="row buttons">
                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" id="submitSettings">Verkställ</button>

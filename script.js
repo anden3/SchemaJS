@@ -9,6 +9,8 @@ Date.prototype.getActualDay = function() {
 
 var background = document.getElementById("schedule");
 var settings = document.getElementById("settings");
+var days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
+
 
 var settingsVisible = false;
 
@@ -50,7 +52,7 @@ var setDefaultValues = function () {
     document.getElementById("schoolID").value = schoolID;
     document.getElementById("userID").value = userID;
     document.getElementById("week").value = week;
-    document.getElementById("day").value = Math.log2(today);
+    document.getElementById("dayPicker").innerHTML = "<p>" + days[Math.log2(today)] + "</p>";
 }
 
 var getImage = function () {
@@ -123,6 +125,19 @@ var eventListeners = function () {
         });
     });
 
+    for (var i = 0; i < days.length; i++) {
+        document.getElementById(days[i]).addEventListener("touchstart", function () {
+            var touchStart = event.target;
+            var day = event.srcElement.id;
+
+            document.getElementById(day).addEventListener("touchend", function () {
+                if (event.target === touchStart) {
+                    document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
+                }
+            });
+        });
+    }
+
     document.getElementById("submitSettings").addEventListener("touchstart", function () {
         var touchStart = event.target;
 
@@ -135,7 +150,12 @@ var eventListeners = function () {
                 createCookie("USERID", userID, 365);
 
                 week = document.getElementById("week").value;
-                today = Math.pow(2, document.getElementById("day").value);
+
+                var dayPickedTagged = document.getElementById("dayPicker").innerHTML;
+                var dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4);
+                var dayIndex = days.indexOf(dayPicked);
+
+                today = Math.pow(2, dayIndex);
 
                 background.style.backgroundImage = "url(" + getImage() + ")";
 
@@ -144,8 +164,14 @@ var eventListeners = function () {
         });
     });
 
-    document.getElementById("cancelSettings").addEventListener("click", function () {
-        toggleSettings(0);
+    document.getElementById("cancelSettings").addEventListener("touchstart", function () {
+        var touchStart = event.target;
+
+        document.getElementById("cancelSettings").addEventListener("touchend", function () {
+            if(event.target === touchStart) {
+                toggleSettings(0);
+            }
+        });
     });
 }
 
