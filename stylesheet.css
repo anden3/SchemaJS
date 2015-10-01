@@ -8,7 +8,7 @@ body {
 }
 
 .header {
-	background-color: #3F51B5;
+    background-color: #3F51B5;
     position: absolute;
     top: 0px;
     width: 100%;
@@ -20,12 +20,12 @@ body {
 }
 
 .header div ul {
-	box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
     padding: 0;
 }
 
 .header button {
-	color: white;
+    color: white;
     position: relative;
     padding: 0;
     margin: 0;
@@ -55,8 +55,8 @@ body {
     z-index: 0;
 }
 
-#settings {
-	display: none;
+.settings {
+    display: none;
     position: absolute;
     top: 7.8vh;
     width: auto;
@@ -67,8 +67,8 @@ body {
     box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
 
-#settings i {
-	font-size: 24px;
+.settings i {
+    font-size: 24px;
 }
 
 .row {
@@ -102,18 +102,18 @@ body {
 }
 
 .mdl-radio__label {
-	margin: 0;
+    margin: 0;
 }
 
 #dayPicker {
-	width: 100%;
+    width: 100%;
     padding-right: 15px;
     text-align: left;
     border-radius: 0;
 }
 
 #dayPicker * {
-	font-size: 16px;
+    font-size: 16px;
     text-transform: none;
     margin-left: 15px;
     width: 100%;
@@ -126,6 +126,5 @@ body {
 }
 
 .buttons * {
-	margin-right: 10px;
+    margin-right: 10px;
 }
-

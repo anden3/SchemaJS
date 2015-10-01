@@ -3,17 +3,15 @@ Date.prototype.getWeek = function () {
     return Math.ceil((((this - onejan) / 86400000) + onejan.getDay() + 1) / 7);
 }
 
-Date.prototype.getActualDay = function() {
+Date.prototype.getActualDay = function () {
     return (this.getDay() + 6) % 7;
 }
 
 
-var background = document.getElementById("schedule");
-var settings = document.getElementById("settings");
-var days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"];
-var swipeDays = 0;
-
-var settingsVisible = false;
+var background = document.getElementById("schedule"),
+    settings = document.getElementById("settings"),
+    days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
+    settingsVisible = false;
 
 
 var createCookie = function (name, value, days) {
@@ -21,8 +19,7 @@ var createCookie = function (name, value, days) {
         var date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
         var expires = "; expires=" + date.toGMTString();
-    }
-    else {
+    } else {
         var expires = " ";
     }
 
@@ -30,8 +27,9 @@ var createCookie = function (name, value, days) {
 }
 
 var readCookie = function (name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(";");
+    var nameEQ = name + "=",
+        ca = document.cookie.split(";");
+
     for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
 
@@ -47,24 +45,27 @@ var readCookie = function (name) {
 }
 
 var setDefaultValues = function () {
-    if (readCookie("SCHOOLID") != null) {
+    if (readCookie("schoolID") != null) {
         schoolID = readCookie("SCHOOLID");
-    }
-    else {
+    } else if (localStorage.schoolID != null) {
+        schoolID = localStorage.schoolID;
+    } else {
         schoolID = "29540";
     }
 
     if (readCookie("USERID") != null) {
         userID = readCookie("USERID");
-    }
-    else {
+    } else if (localStorage.userID != null) {
+        userID = localStorage.userID;
+    } else {
         userID = "";
     }
 
     if (readCookie("CLASSID") != null) {
         classID = readCookie("CLASSID");
-    }
-    else {
+    } else if (localStorage.classID != null) {
+        classID = localStorage.classID;
+    } else {
         classID = "";
     }
 
@@ -73,13 +74,20 @@ var setDefaultValues = function () {
         if (IDType.length >= 10) {
             document.getElementById("userRadio").checked = true;
             document.getElementById("classRadio").checked = false;
-        }
-        else {
+        } else {
             document.getElementById("classRadio").checked = true;
             document.getElementById("userRadio").checked = false;
         }
-    }
-    else {
+    } else if (localStorage.IDType != null) {
+        IDType = localStorage.IDType;
+        if (IDType.length >= 10) {
+            document.getElementById("userRadio").checked = true;
+            document.getElementById("classRadio").checked = false;
+        } else {
+            document.getElementById("classRadio").checked = true;
+            document.getElementById("userRadio").checked = false;
+        }
+    } else {
         IDType = userID;
         document.getElementById("userRadio").checked = true;
         document.getElementById("classRadio").checked = false;
@@ -98,12 +106,12 @@ var displayDefaultValues = function () {
 }
 
 var getImage = function (ID) {
-    var header = document.getElementById("header");
-    var headerStyle = getComputedStyle(header);
-    var headerHeight = headerStyle.getPropertyValue('height');
+    var header = document.getElementById("header"),
+        headerStyle = getComputedStyle(header),
+        headerHeight = headerStyle.getPropertyValue('height');
 
-    var width = window.innerWidth;
-    var height = window.innerHeight - Math.round(headerHeight.substring(0, headerHeight.length - 2));
+    var width = window.innerWidth,
+        height = window.innerHeight - Math.round(headerHeight.substring(0, headerHeight.length - 2));
 
     background.style.width = width;
     background.style.height = height;
@@ -121,17 +129,10 @@ var toggleSettings = function (toggle) {
 
         settings.style.left = (window.innerWidth - settingsWidth.substring(0, settingsWidth.length - 2)) / 2;
         background.style.webkitFilter = "blur(2px)";
-    }
-    else if (toggle === 0) {
+    } else if (toggle === 0) {
         settingsVisible = false;
         settings.style.display = "none";
         background.style.webkitFilter = "blur(0)";
-    }
-
-    background.onclick = function(e) {
-        if(e.target != settings) {
-            toggleSettings(0);
-        }
     }
 }
 
@@ -142,8 +143,7 @@ var submitSettings = function (swipe) {
 
     if (document.getElementById("userRadio").checked) {
         IDType = userID;
-    }
-    else {
+    } else {
         IDType = classID;
     }
 
@@ -152,21 +152,23 @@ var submitSettings = function (swipe) {
     createCookie("CLASSID", classID, 365);
     createCookie("IDTYPE", IDType, 365);
 
+    localStorage.setItem("schoolID", schoolID);
+    localStorage.setItem("userID", userID);
+    localStorage.setItem("classID", classID);
+    localStorage.setItem("IDType", IDType);
+
     week = document.getElementById("week").value;
 
-    var dayPickedTagged = document.getElementById("dayPicker").innerHTML;
-    var dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4);
-    var dayIndex = days.indexOf(dayPicked);
-
-    console.log(dayIndex);
+    var dayPickedTagged = document.getElementById("dayPicker").innerHTML,
+        dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4),
+        dayIndex = days.indexOf(dayPicked);
 
     dayIndex += swipe;
     document.getElementById("dayPicker").innerHTML = "<p>" + days[dayIndex] + "</p>";
 
     if (dayIndex < 5) {
         today = Math.pow(2, dayIndex);
-    }
-    else {
+    } else {
         today = 0;
     }
 
@@ -184,114 +186,144 @@ var eventListeners = function () {
         background.style.backgroundImage = "url(" + getImage(IDType) + ")";
     });
 
-    document.getElementById("settingsButton").addEventListener("touchstart", function () {
-        var touchStart = event.target;
+    var is_touch_device = 'ontouchstart' in document.documentElement;
 
-        document.getElementById("settingsButton").addEventListener("touchend", function () {
-            if(event.target === touchStart) {
-                toggleSettings(1);
-            }
-        });
-    });
-
-    var textFields = document.getElementsByClassName("mdl-textfield__input");
-    for (var i = 0; i < textFields.length; i++) {
-        textFields[i].addEventListener("keydown", function () {
-            if (event.keyCode === 13) {
-                submitSettings(0);
-            }
-        });
-    }
-
-    for (var i = 0; i < days.length; i++) {
-        document.getElementById(days[i]).addEventListener("touchstart", function () {
+    if (is_touch_device) {
+        document.getElementById("settingsButton").addEventListener("touchstart", function () {
             var touchStart = event.target;
-            var day = event.srcElement.id;
 
-            document.getElementById(day).addEventListener("touchend", function () {
+            document.getElementById("settingsButton").addEventListener("touchend", function () {
                 if (event.target === touchStart) {
-                    document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
+                    toggleSettings(1);
                 }
             });
         });
-    }
 
-    document.getElementById("submitSettings").addEventListener("touchstart", function () {
-        var touchStart = event.target;
+        for (var i = 0; i < days.length; i++) {
+            document.getElementById(days[i]).addEventListener("touchstart", function () {
+                var touchStart = event.target;
+                var day = event.srcElement.id;
 
-        document.getElementById("submitSettings").addEventListener("touchend", function () {
-            if(event.target === touchStart) {
-                submitSettings(0);
+                document.getElementById(day).addEventListener("touchend", function () {
+                    if (event.target === touchStart) {
+                        document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
+                    }
+                });
+            });
+        }
+
+        document.getElementById("submitSettings").addEventListener("touchstart", function () {
+            var touchStart = event.target;
+
+            document.getElementById("submitSettings").addEventListener("touchend", function () {
+                if (event.target === touchStart) {
+                    submitSettings(0);
+                }
+            });
+        });
+
+        document.getElementById("cancelSettings").addEventListener("touchstart", function () {
+            var touchStart = event.target;
+
+            document.getElementById("cancelSettings").addEventListener("touchend", function () {
+                if (event.target === touchStart) {
+                    toggleSettings(0);
+                }
+            });
+        });
+
+        swipedetect(background, function (swipedir) {
+            if (swipedir === "left") {
+                submitSettings(1);
+            } else if (swipedir === "right") {
+                submitSettings(-1);
             }
         });
-    });
+    } else {
+        document.getElementById("settingsButton").addEventListener("click", function () {
+            toggleSettings(1);
+        });
 
-    document.getElementById("cancelSettings").addEventListener("touchstart", function () {
-        var touchStart = event.target;
+        for (var i = 0; i < days.length; i++) {
+            document.getElementById(days[i]).addEventListener("click", function () {
+                var day = event.srcElement.id;
+                document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
+            });
+        }
 
-        document.getElementById("cancelSettings").addEventListener("touchend", function () {
-            if(event.target === touchStart) {
+        document.getElementById("submitSettings").addEventListener("click", function () {
+            submitSettings(0);
+        });
+
+        document.getElementById("cancelSettings").addEventListener("click", function () {
+            submitSettings(0);
+        });
+
+        var textFields = document.getElementsByClassName("mdl-textfield__input");
+
+        for (var i = 0; i < textFields.length; i++) {
+            textFields[i].addEventListener("keydown", function () {
+                if (event.keyCode === 13) {
+                    submitSettings(0);
+                }
+            });
+        }
+
+        window.addEventListener("keydown", function () {
+            if (settingsVisible && event.keyCode === 27) {
                 toggleSettings(0);
             }
         });
-    });
-
-    swipedetect(background, function (swipedir) {
-        if (swipedir === "left") {
-            submitSettings(1);
-        }
-        else if (swipedir === "right") {
-            submitSettings(-1);
-        }
-    });
+    }
 }
 
 function swipedetect(el, callback) {
-    var touchsurface = el,
-    swipedir,
-    startX,
-    startY,
-    distX,
-    distY,
-    threshold = 150, //required min distance traveled to be considered swipe
-    restraint = 100, // maximum distance allowed at the same time in perpendicular direction
-    allowedTime = 300, // maximum time allowed to travel that distance
-    elapsedTime,
-    startTime,
-    handleswipe = callback || function(swipedir) {}
+    var touchsurface = el,
+        swipedir,
+        startX,
+        startY,
+        distX,
+        distY,
+        threshold = 100, //required min distance traveled to be considered swipe
+        restraint = 100, // maximum distance allowed at the same time in perpendicular direction
+        allowedTime = 300, // maximum time allowed to travel that distance
+        elapsedTime,
+        startTime,
+        handleswipe = callback || function (swipedir) {}
 
-    touchsurface.addEventListener('touchstart', function(e) {
-        var touchobj = e.changedTouches[0]
-        swipedir = 'none'
-        dist = 0
-        startX = touchobj.pageX
-        startY = touchobj.pageY
-        startTime = new Date().getTime() // record time when finger first makes contact with surface
-        e.preventDefault()
-    }, false)
+    touchsurface.addEventListener('touchstart', function (e) {
+        var touchobj = e.changedTouches[0],
+            dist = 0;
 
-    touchsurface.addEventListener('touchmove', function(e) {
-        e.preventDefault() // prevent scrolling when inside DIV
-    }, false)
+        swipedir = 'none';
+        startX = touchobj.pageX;
+        startY = touchobj.pageY;
+        startTime = new Date().getTime(); // record time when finger first makes contact with surface
+        e.preventDefault();
+    }, false);
 
-    touchsurface.addEventListener('touchend', function(e) {
-        var touchobj = e.changedTouches[0]
-        distX = touchobj.pageX - startX // get horizontal dist traveled by finger while in contact with surface
-        distY = touchobj.pageY - startY // get vertical dist traveled by finger while in contact with surface
-        elapsedTime = new Date().getTime() - startTime // get time elapsed
-        if (elapsedTime <= allowedTime) { // first condition for awipe met
-            if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { // 2nd condition for horizontal swipe met
-                swipedir = (distX < 0)? 'left' : 'right' // if dist traveled is negative, it indicates left swipe
-            }
-            else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
-                swipedir = (distY < 0)? 'up' : 'down' // if dist traveled is negative, it indicates up swipe
-            }
-        }
-        handleswipe(swipedir)
-        e.preventDefault()
-    }, false)
+    touchsurface.addEventListener('touchmove', function (e) {
+        e.preventDefault(); // prevent scrolling when inside DIV
+    }, false);
+
+    touchsurface.addEventListener('touchend', function (e) {
+        var touchobj = e.changedTouches[0];
+
+        distX = touchobj.pageX - startX; // get horizontal dist traveled by finger while in contact with surface
+        distY = touchobj.pageY - startY; // get vertical dist traveled by finger while in contact with surface
+        elapsedTime = new Date().getTime() - startTime; // get time elapsed
+
+        if (elapsedTime <= allowedTime) { // first condition for awipe met
+            if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { // 2nd condition for horizontal swipe met
+                swipedir = (distX < 0) ? 'left' : 'right'; // if dist traveled is negative, it indicates left swipe
+            } else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
+                swipedir = (distY < 0) ? 'up' : 'down'; // if dist traveled is negative, it indicates up swipe
+            }
+        }
+        handleswipe(swipedir);
+        e.preventDefault();
+    }, false);
 }
-
 
 setDefaultValues();
 displayDefaultValues();

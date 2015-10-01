@@ -19,15 +19,38 @@
         </button>
 
         <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="mainMenu">
-          <li class="mdl-menu__item" id="settingsButton">Inställningar</li>
+            <li class="mdl-menu__item" id="settingsButton">Inställningar</li>
         </ul>
     </div>
     <div id="schedule"></div>
-    <div id="settings">
+    <div class="settings" id="settings">
         <div class="row">
             <h4>Inställningar</h4>
         </div>
         <div class="options">
+            <div class="row">
+                <p>Dag: </p>
+                <button id="dayPicker" class="mdl-button mdl-js-button mdl-button--icon"></button>
+
+                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="dayPicker">
+                    <li class="mdl-menu__item" id="Vecka">Vecka</li>
+                    <li class="mdl-menu__item" id="Måndag">Måndag</li>
+                    <li class="mdl-menu__item" id="Tisdag">Tisdag</li>
+                    <li class="mdl-menu__item" id="Onsdag">Onsdag</li>
+                    <li class="mdl-menu__item" id="Torsdag">Torsdag</li>
+                    <li class="mdl-menu__item" id="Fredag">Fredag</li>
+                </ul>
+            </div>
+            <div class="row">
+                <p>Vecka: </p>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="week" />
+                        <label class="mdl-textfield__label" for="week" id="weekLabel"></label>
+                        <span class="mdl-textfield__error">Måste vara ett nummer</span>
+                    </div>
+                </form>
+            </div>
             <div class="row">
                 <p>Skol-ID: </p>
                 <form action="#">
@@ -53,29 +76,6 @@
                     <div class="mdl-textfield mdl-js-textfield">
                         <input class="mdl-textfield__input" type="text" id="classID" />
                         <label class="mdl-textfield__label" for="classID" id="classIDLabel"></label>
-                    </div>
-                </form>
-            </div>
-            <div class="row">
-                <p>Dag: </p>
-                <button id="dayPicker" class="mdl-button mdl-js-button mdl-button--icon"></button>
-
-                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="dayPicker">
-                    <li class="mdl-menu__item" id="Vecka">Vecka</li>
-                    <li class="mdl-menu__item" id="Måndag">Måndag</li>
-                    <li class="mdl-menu__item" id="Tisdag">Tisdag</li>
-                    <li class="mdl-menu__item" id="Onsdag">Onsdag</li>
-                    <li class="mdl-menu__item" id="Torsdag">Torsdag</li>
-                    <li class="mdl-menu__item" id="Fredag">Fredag</li>
-                </ul>
-            </div>
-            <div class="row">
-                <p>Vecka: </p>
-                <form action="#">
-                    <div class="mdl-textfield mdl-js-textfield">
-                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="week" />
-                        <label class="mdl-textfield__label" for="week" id="weekLabel"></label>
-                        <span class="mdl-textfield__error">Måste vara ett nummer</span>
                     </div>
                 </form>
             </div>
