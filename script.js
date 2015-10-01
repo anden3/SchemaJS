@@ -20,8 +20,12 @@ document.getElementById("weekLabel").innerHTML = week;
 document.getElementById("dayLabel").innerHTML = today;
 
 var getImage = function () {
+    var header = document.getElementById("header");
+    var headerStyle = getComputedStyle(header);
+    var headerHeight = headerStyle.getPropertyValue('height');
+
     var width = window.innerWidth;
-    var height = window.innerHeight - 40;
+    var height = window.innerHeight - Math.round(headerHeight.substring(0, headerHeight.length - 2));
 
     background.style.width = width;
     background.style.height = height;
@@ -48,27 +52,31 @@ var toggleSettings = function (toggle) {
 
 background.style.backgroundImage = "url(" + getImage() + ")";
 
-window.addEventListener("resize", function () {
-    background.style.backgroundImage = "url(" + getImage() + ")";
-});
+var eventListeners = function () {
+    window.addEventListener("resize", function () {
+        background.style.backgroundImage = "url(" + getImage() + ")";
+    });
 
-document.getElementById("settingsButton").addEventListener("click", function () {
-    toggleSettings(1);
-});
+    document.getElementById("settingsButton").addEventListener("click", function () {
+        toggleSettings(1);
+    });
 
-document.getElementById("settingsBackButton").addEventListener("click", function () {
-    toggleSettings(0);
-});
-document.getElementById("submitSettings").addEventListener("click", function () {
-    schoolID = document.getElementById("schoolID").value;
-    userID = document.getElementById("userID").value;
-    week = document.getElementById("week").value;
-    day = document.getElementById("day").value;
+    document.getElementById("settingsBackButton").addEventListener("click", function () {
+        toggleSettings(0);
+    });
+    document.getElementById("submitSettings").addEventListener("click", function () {
+        schoolID = document.getElementById("schoolID").value;
+        userID = document.getElementById("userID").value;
+        week = document.getElementById("week").value;
+        day = document.getElementById("day").value;
 
-    background.style.backgroundImage = "url(" + getImage() + ")";
-    toggleSettings(0);
-})
+        background.style.backgroundImage = "url(" + getImage() + ")";
+        toggleSettings(0);
+    })
 
-document.getElementById("cancelSettings").addEventListener("click", function () {
-    toggleSettings(0);
-});
+    document.getElementById("cancelSettings").addEventListener("click", function () {
+        toggleSettings(0);
+    });
+}
+
+eventListeners();

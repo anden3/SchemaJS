@@ -12,27 +12,38 @@ body {
     position: absolute;
     top: 0px;
     width: 100%;
-    height: 40px;
+    height: 6vh;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 6vh;
 }
 
 .header button {
 	color: white;
-    margin-top: -7px;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    float: left;
+    height: 6vh;
 }
 
 .header i {
-    font-size: 36px;
-}
+    font-size: 6vh;
+    padding: 0;
+    margin: 0 0 0 -10px;}
 
 .header h3 {
-	display: inline;
+    display: inline;
     color: white;
-    margin-left: 42%;
-    font-size: 1.5em;
+    padding: 0;
+    margin: 0 0 0 -30px;
+    font-size: 4vh;
+    vertical-align: middle;
+    line-height: 6vh;
 }
 
 #schedule {
-    margin-top: 40px;
+    margin-top: 6vh;
     z-index: 0;
 }
 
@@ -47,6 +58,13 @@ body {
     background-color: white;
 }
 
+#settingsBackButton {
+	color: black;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
 #settings i {
 	font-size: 24px;
 }
@@ -58,7 +76,9 @@ body {
 
 .row h4 {
     position: relative;
-    top: 5px;
+    top: 0px;
+    left: 30px;
+    font-size: 3vh;
 }
 
 .buttons {
@@ -69,3 +89,4 @@ body {
 .buttons * {
 	margin-right: 10px;
 }
+
