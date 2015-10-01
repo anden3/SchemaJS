@@ -18,7 +18,7 @@
           <i class="material-icons">more_vert</i>
         </button>
 
-        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="mainMenu">
+        <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="mainMenu">
           <li class="mdl-menu__item" id="settingsButton">Inställningar</li>
         </ul>
     </div>
@@ -59,16 +59,9 @@
             </div>
             <div class="row">
                 <p>Dag: </p>
-                <!--<form action="#">
-                    <div class="mdl-textfield mdl-js-textfield">
-                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="day" max="4" />
-                        <label class="mdl-textfield__label" for="day" id="dayLabel"></label>
-                        <span class="mdl-textfield__error">Måste vara ett nummer</span>
-                    </div>
-                </form>-->
                 <button id="dayPicker" class="mdl-button mdl-js-button mdl-button--icon"></button>
 
-                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="dayPicker">
+                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="dayPicker">
                     <li class="mdl-menu__item" id="Måndag">Måndag</li>
                     <li class="mdl-menu__item" id="Tisdag">Tisdag</li>
                     <li class="mdl-menu__item" id="Onsdag">Onsdag</li>
@@ -77,8 +70,8 @@
                 </ul>
             </div>
             <div class="row buttons">
-                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" id="submitSettings">Verkställ</button>
-                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="cancelSettings">Avbryt</button>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="submitSettings">Verkställ</button>
+                <button class="mdl-button mdl-js-button mdl-button--raised" id="cancelSettings">Avbryt</button>
             </div>
         </div>
     </div>

@@ -7,12 +7,13 @@ Date.prototype.getActualDay = function() {
     return (this.getDay() + 6) % 7;
 }
 
+
 var background = document.getElementById("schedule");
 var settings = document.getElementById("settings");
 var days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 
-
 var settingsVisible = false;
+
 
 var readCookie = function (name) {
     var nameEQ = name + "=";
@@ -31,24 +32,26 @@ var readCookie = function (name) {
     return null;
 }
 
-if (readCookie("SCHOOLID") != null) {
-    schoolID = readCookie("SCHOOLID");
-}
-else {
-    var schoolID = "29540";
-}
-
-if (readCookie("USERID") != null) {
-    userID = readCookie("USERID");
-}
-else {
-    var userID = "980523-6032";
-}
-
-var week = (new Date()).getWeek();
-var today = Math.pow(2, (new Date()).getActualDay());
-
 var setDefaultValues = function () {
+    if (readCookie("SCHOOLID") != null) {
+        schoolID = readCookie("SCHOOLID");
+    }
+    else {
+        schoolID = "29540";
+    }
+
+    if (readCookie("USERID") != null) {
+        userID = readCookie("USERID");
+    }
+    else {
+        userID = "980523-6032";
+    }
+
+    week = (new Date()).getWeek();
+    today = Math.pow(2, (new Date()).getActualDay());
+}
+
+var displayDefaultValues = function () {
     document.getElementById("schoolID").value = schoolID;
     document.getElementById("userID").value = userID;
     document.getElementById("week").value = week;
@@ -106,6 +109,26 @@ var createCookie = function (name, value, days) {
     document.cookie = name + "=" + value + expires + "; path=/";
 }
 
+var submitSettings = function () {
+    schoolID = document.getElementById("schoolID").value;
+    userID = document.getElementById("userID").value;
+
+    createCookie("SCHOOLID", schoolID, 365);
+    createCookie("USERID", userID, 365);
+
+    week = document.getElementById("week").value;
+
+    var dayPickedTagged = document.getElementById("dayPicker").innerHTML;
+    var dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4);
+    var dayIndex = days.indexOf(dayPicked);
+
+    today = Math.pow(2, dayIndex);
+
+    background.style.backgroundImage = "url(" + getImage() + ")";
+
+    toggleSettings(0);
+}
+
 var eventListeners = function () {
     window.addEventListener("resize", function () {
         if (settingsVisible) {
@@ -125,6 +148,15 @@ var eventListeners = function () {
         });
     });
 
+    var textFields = document.getElementsByClassName("mdl-textfield__input");
+    for (var i = 0; i < textFields.length; i++) {
+        textFields[i].addEventListener("keydown", function () {
+            if (event.keyCode === 13) {
+                submitSettings();
+            }
+        });
+    }
+
     for (var i = 0; i < days.length; i++) {
         document.getElementById(days[i]).addEventListener("touchstart", function () {
             var touchStart = event.target;
@@ -143,23 +175,7 @@ var eventListeners = function () {
 
         document.getElementById("submitSettings").addEventListener("touchend", function () {
             if(event.target === touchStart) {
-                schoolID = document.getElementById("schoolID").value;
-                userID = document.getElementById("userID").value;
-
-                createCookie("SCHOOLID", schoolID, 365);
-                createCookie("USERID", userID, 365);
-
-                week = document.getElementById("week").value;
-
-                var dayPickedTagged = document.getElementById("dayPicker").innerHTML;
-                var dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4);
-                var dayIndex = days.indexOf(dayPicked);
-
-                today = Math.pow(2, dayIndex);
-
-                background.style.backgroundImage = "url(" + getImage() + ")";
-
-                toggleSettings(0);
+                submitSettings();
             }
         });
     });
@@ -175,6 +191,8 @@ var eventListeners = function () {
     });
 }
 
+
 setDefaultValues();
+displayDefaultValues();
 background.style.backgroundImage = "url(" + getImage() + ")";
 eventListeners();
