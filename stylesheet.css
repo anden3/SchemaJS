@@ -58,7 +58,7 @@ body {
 #settings {
 	display: none;
     position: absolute;
-    top: 8vh;
+    top: 7.8vh;
     width: auto;
     height: auto;
     padding-right: 10px;
@@ -86,6 +86,23 @@ body {
 
 .row form div {
     padding: 0 0 0 10px;
+}
+
+.row.radio {
+    padding-left: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.row.radio p {
+    margin: 0 0 0 -10px;
+}
+
+.radio {
+    margin: 0 10px 0 0;
+}
+
+.mdl-radio__label {
+	margin: 0;
 }
 
 #dayPicker {

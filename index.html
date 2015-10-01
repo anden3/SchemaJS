@@ -39,13 +39,35 @@
                 </form>
             </div>
             <div class="row">
-                <p>Person/Klass-ID: </p>
+                <p>Person-ID: </p>
                 <form action="#">
                     <div class="mdl-textfield mdl-js-textfield">
                         <input class="mdl-textfield__input" type="text" id="userID" />
                         <label class="mdl-textfield__label" for="userID" id="userIDLabel"></label>
                     </div>
                 </form>
+            </div>
+            <div class="row">
+                <p>Klass-ID: </p>
+                <form action="#">
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <input class="mdl-textfield__input" type="text" id="classID" />
+                        <label class="mdl-textfield__label" for="classID" id="classIDLabel"></label>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <p>Dag: </p>
+                <button id="dayPicker" class="mdl-button mdl-js-button mdl-button--icon"></button>
+
+                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="dayPicker">
+                    <li class="mdl-menu__item" id="Vecka">Vecka</li>
+                    <li class="mdl-menu__item" id="Måndag">Måndag</li>
+                    <li class="mdl-menu__item" id="Tisdag">Tisdag</li>
+                    <li class="mdl-menu__item" id="Onsdag">Onsdag</li>
+                    <li class="mdl-menu__item" id="Torsdag">Torsdag</li>
+                    <li class="mdl-menu__item" id="Fredag">Fredag</li>
+                </ul>
             </div>
             <div class="row">
                 <p>Vecka: </p>
@@ -57,17 +79,16 @@
                     </div>
                 </form>
             </div>
-            <div class="row">
-                <p>Dag: </p>
-                <button id="dayPicker" class="mdl-button mdl-js-button mdl-button--icon"></button>
-
-                <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu" for="dayPicker">
-                    <li class="mdl-menu__item" id="Måndag">Måndag</li>
-                    <li class="mdl-menu__item" id="Tisdag">Tisdag</li>
-                    <li class="mdl-menu__item" id="Onsdag">Onsdag</li>
-                    <li class="mdl-menu__item" id="Torsdag">Torsdag</li>
-                    <li class="mdl-menu__item" id="Fredag">Fredag</li>
-                </ul>
+            <div class="row radio">
+                <p>Typ av schema: </p>
+                <span class="radio"><label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="userRadio">
+                    <input type="radio" id="userRadio" class="mdl-radio__button" name="options" value="1" checked />
+                    <span class="mdl-radio__label">Personligt</span>
+                </label></span>
+                <span class="radio"><label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="classRadio">
+                    <input type="radio" id="classRadio" class="mdl-radio__button" name="options" value="1" />
+                    <span class="mdl-radio__label">Klass</span>
+                </label></span>
             </div>
             <div class="row buttons">
                 <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" id="submitSettings">Verkställ</button>
