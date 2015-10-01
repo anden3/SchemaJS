@@ -12,15 +12,46 @@ var settings = document.getElementById("settings");
 
 var settingsVisible = false;
 
-var schoolID = "29540";
-var userID = "980523-6032";
+var readCookie = function (name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(";");
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1, c.length);
+        }
+
+        if (c.indexOf(nameEQ) === 0) {
+            return c.substring(nameEQ.length, c.length);
+        }
+    }
+    return null;
+}
+
+if (readCookie("SCHOOLID") != null) {
+    schoolID = readCookie("SCHOOLID");
+}
+else {
+    var schoolID = "29540";
+}
+
+if (readCookie("USERID") != null) {
+    userID = readCookie("USERID");
+}
+else {
+    var userID = "980523-6032";
+}
+
 var week = (new Date()).getWeek();
 var today = Math.pow(2, (new Date()).getActualDay());
 
-document.getElementById("schoolID").value = schoolID;
-document.getElementById("userID").value = userID;
-document.getElementById("week").value = week;
-document.getElementById("day").value = Math.log2(today);
+var setDefaultValues = function () {
+    document.getElementById("schoolID").value = schoolID;
+    document.getElementById("userID").value = userID;
+    document.getElementById("week").value = week;
+    document.getElementById("day").value = Math.log2(today);
+}
 
 var getImage = function () {
     var header = document.getElementById("header");
@@ -60,7 +91,18 @@ var toggleSettings = function (toggle) {
     }
 }
 
-background.style.backgroundImage = "url(" + getImage() + ")";
+var createCookie = function (name, value, days) {
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "; expires=" + date.toGMTString();
+    }
+    else {
+        var expires = " ";
+    }
+
+    document.cookie = name + "=" + value + expires + "; path=/";
+}
 
 var eventListeners = function () {
     window.addEventListener("resize", function () {
@@ -71,23 +113,42 @@ var eventListeners = function () {
         background.style.backgroundImage = "url(" + getImage() + ")";
     });
 
-    document.getElementById("settingsButton").addEventListener("click", function () {
-        toggleSettings(1);
+    document.getElementById("settingsButton").addEventListener("touchstart", function () {
+        var touchStart = event.target;
+
+        document.getElementById("settingsButton").addEventListener("touchend", function () {
+            if(event.target === touchStart) {
+                toggleSettings(1);
+            }
+        });
     });
-    document.getElementById("submitSettings").addEventListener("click", function () {
-        schoolID = document.getElementById("schoolID").value;
-        userID = document.getElementById("userID").value;
-        week = document.getElementById("week").value;
-        today = Math.pow(2, document.getElementById("day").value);
 
-        background.style.backgroundImage = "url(" + getImage() + ")";
+    document.getElementById("submitSettings").addEventListener("touchstart", function () {
+        var touchStart = event.target;
 
-        toggleSettings(0);
-    })
+        document.getElementById("submitSettings").addEventListener("touchend", function () {
+            if(event.target === touchStart) {
+                schoolID = document.getElementById("schoolID").value;
+                userID = document.getElementById("userID").value;
+
+                createCookie("SCHOOLID", schoolID, 365);
+                createCookie("USERID", userID, 365);
+
+                week = document.getElementById("week").value;
+                today = Math.pow(2, document.getElementById("day").value);
+
+                background.style.backgroundImage = "url(" + getImage() + ")";
+
+                toggleSettings(0);
+            }
+        });
+    });
 
     document.getElementById("cancelSettings").addEventListener("click", function () {
         toggleSettings(0);
     });
 }
 
+setDefaultValues();
+background.style.backgroundImage = "url(" + getImage() + ")";
 eventListeners();
