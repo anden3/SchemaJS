@@ -16,6 +16,11 @@ body {
     text-align: center;
     vertical-align: middle;
     line-height: 6vh;
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+}
+
+.header ul {
+	box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
 
 .header button {
@@ -25,18 +30,20 @@ body {
     margin: 0;
     float: left;
     height: 6vh;
+    width: 6vh;
 }
 
 .header i {
     font-size: 6vh;
     padding: 0;
-    margin: 0 0 0 -10px;}
+    margin: 0 0 0 -2vh;
+}
 
 .header h3 {
     display: inline;
     color: white;
     padding: 0;
-    margin: 0 0 0 -30px;
+    margin: 0 0 0 -6vh;
     font-size: 4vh;
     vertical-align: middle;
     line-height: 6vh;
@@ -50,19 +57,13 @@ body {
 #settings {
 	display: none;
     position: absolute;
-    top: 50px;
-    right: 40px;
-    bottom: 40px;
-    left: 40px;
+    top: 8vh;
+    width: auto;
+    height: auto;
+    padding-right: 10px;
     z-index: 10;
     background-color: white;
-}
-
-#settingsBackButton {
-	color: black;
-    position: absolute;
-    left: 0;
-    top: 0;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
 }
 
 #settings i {
@@ -70,20 +71,21 @@ body {
 }
 
 .row * {
-    display: inline;
-    margin-left: 10px;
+    margin: 0 0 0 10px;
 }
 
 .row h4 {
-    position: relative;
-    top: 0px;
-    left: 30px;
-    font-size: 3vh;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.row form div {
+    padding: 10px 0 0 10px;
 }
 
 .buttons {
-    margin-top: 26%;
-    margin-left: 2%;
+    margin: 50px 0 0 5px;
+    padding-bottom: 10px;
 }
 
 .buttons * {

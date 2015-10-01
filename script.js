@@ -10,14 +10,17 @@ Date.prototype.getActualDay = function() {
 var background = document.getElementById("schedule");
 var settings = document.getElementById("settings");
 
+var settingsVisible = false;
+
 var schoolID = "29540";
 var userID = "980523-6032";
 var week = (new Date()).getWeek();
 var today = Math.pow(2, (new Date()).getActualDay());
 
-document.getElementById("userIDLabel").innerHTML = userID;
-document.getElementById("weekLabel").innerHTML = week;
-document.getElementById("dayLabel").innerHTML = today;
+document.getElementById("schoolID").value = schoolID;
+document.getElementById("userID").value = userID;
+document.getElementById("week").value = week;
+document.getElementById("day").value = Math.log2(today);
 
 var getImage = function () {
     var header = document.getElementById("header");
@@ -35,10 +38,17 @@ var getImage = function () {
 
 var toggleSettings = function (toggle) {
     if (toggle === 1) {
+        settingsVisible = true;
         settings.style.display = "block";
+
+        settingsStyle = getComputedStyle(settings);
+        settingsWidth = settingsStyle.getPropertyValue("width");
+
+        settings.style.left = (window.innerWidth - settingsWidth.substring(0, settingsWidth.length - 2)) / 2;
         background.style.webkitFilter = "blur(2px)";
     }
     else if (toggle === 0) {
+        settingsVisible = false;
         settings.style.display = "none";
         background.style.webkitFilter = "blur(0)";
     }
@@ -54,23 +64,24 @@ background.style.backgroundImage = "url(" + getImage() + ")";
 
 var eventListeners = function () {
     window.addEventListener("resize", function () {
+        if (settingsVisible) {
+            toggleSettings(1);
+        }
+
         background.style.backgroundImage = "url(" + getImage() + ")";
     });
 
     document.getElementById("settingsButton").addEventListener("click", function () {
         toggleSettings(1);
     });
-
-    document.getElementById("settingsBackButton").addEventListener("click", function () {
-        toggleSettings(0);
-    });
     document.getElementById("submitSettings").addEventListener("click", function () {
         schoolID = document.getElementById("schoolID").value;
         userID = document.getElementById("userID").value;
         week = document.getElementById("week").value;
-        day = document.getElementById("day").value;
+        today = Math.pow(2, document.getElementById("day").value);
 
         background.style.backgroundImage = "url(" + getImage() + ")";
+
         toggleSettings(0);
     })
 
