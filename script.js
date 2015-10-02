@@ -430,6 +430,7 @@ var getFoods = function () {
     }
 }
 
+
 parseRSS();
 setDefaultValues();
 displayDefaultValues();
