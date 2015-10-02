@@ -7,13 +7,18 @@ Date.prototype.getActualDay = function () {
     return (this.getDay() + 6) % 7;
 }
 
-
-var background = document.getElementById("schedule"),
+var header = document.getElementById("header"),
+    foodElement = document.getElementById("food"),
+    background = document.getElementById("schedule"),
     settings = document.getElementById("settings"),
     days = ["M\u{E5}ndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
     settingsVisible = false,
     weeksAdded = 0,
-    daysAdded = 0;
+    daysAdded = 0,
+    foodWeeks = new Set(),
+    foodDays = new Set(),
+    foodDescs = [],
+    food = {};
 
 
 var createCookie = function (name, value, days) {
@@ -139,6 +144,8 @@ var toggleSettings = function (toggle) {
 }
 
 var submitSettings = function (direction) {
+    getFoods();
+
     schoolID = document.getElementById("schoolID").value;
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
@@ -159,42 +166,36 @@ var submitSettings = function (direction) {
     localStorage.setItem("classID", classID);
     localStorage.setItem("IDType", IDType);
 
-    week = document.getElementById("week").value;
+    week = parseInt(document.getElementById("week").value, 10);
 
     var dayPickedTagged = document.getElementById("dayPicker").innerHTML,
         dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4),
         dayIndex = days.indexOf(dayPicked);
 
-    document.getElementById("dayPicker").innerHTML = "<p>" + days[dayIndex] + "</p>";
-
     if (direction === "left") {
-        daysAdded -= 1;
-        dayIndex += daysAdded;
-        if (dayIndex < 0) {
-            weeksAdded -= 1;
+        dayIndex -= 1;
 
-            daysAdded += 5;
+        if (dayIndex < 0) {
+            week -= 1;
             dayIndex = 5;
         }
     }
     else if (direction === "up") {
-        weeksAdded += 1;
+        week += 1;
+        dayIndex += daysAdded;
     }
     else if (direction === "right") {
-        daysAdded += 1;
-        dayIndex += daysAdded;
-        if (dayIndex > 5) {
-            weeksAdded += 1;
+        dayIndex += 1;
 
-            daysAdded -= 5;
+        if (dayIndex > 5) {
+            week += 1;
             dayIndex = 0;
         }
     }
     else if (direction === "down") {
-        weeksAdded -= 1;
+        week -= 1;
+        dayIndex += daysAdded;
     }
-
-    week = parseInt(week, 10) + weeksAdded;
 
     if (dayIndex != 5) {
         today = Math.pow(2, dayIndex);
@@ -203,7 +204,24 @@ var submitSettings = function (direction) {
         today = 0;
     }
 
+    document.getElementById("dayPicker").innerHTML = "<p>" + days[dayIndex] + "</p>";
+    document.getElementById("week").value = week;
+
+    if (dayIndex < 5 && foodWeeks.indexOf(week) != -1) {
+        header.style.height = "12vh";
+        foodElement.style.display = "block";
+        background.style.marginTop = "12vh";
+        foodElement.innerHTML = "<p>" + food[week][days[dayIndex]] + "</p>";
+    }
+    else {
+        header.style.height = "6vh";
+        foodElement.style.display = "none";
+        background.style.marginTop = "6vh";
+        foodElement.innerHTML = "";
+
+    }
     background.style.backgroundImage = "url(" + getImage(IDType) + ")";
+
     toggleSettings(0);
 }
 
@@ -318,6 +336,8 @@ var eventListeners = function () {
             }
         });
     }
+
+    setInterval(parseRSS, 1000 * 60 * 60);
 }
 
 function swipedetect(el, callback) {
@@ -329,7 +349,7 @@ function swipedetect(el, callback) {
         distY,
         threshold = 100, //required min distance traveled to be considered swipe
         restraint = 100, // maximum distance allowed at the same time in perpendicular direction
-        allowedTime = 300, // maximum time allowed to travel that distance
+        allowedTime = 500, // maximum time allowed to travel that distance
         elapsedTime,
         startTime,
         handleswipe = callback || function (swipedir) {}
@@ -356,11 +376,11 @@ function swipedetect(el, callback) {
         distY = touchobj.pageY - startY; // get vertical dist traveled by finger while in contact with surface
         elapsedTime = new Date().getTime() - startTime; // get time elapsed
 
-        if (elapsedTime <= allowedTime) { // first condition for awipe met
+        if (elapsedTime <= allowedTime) { // first condition for a wipe met
             if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { // 2nd condition for horizontal swipe met
-                swipedir = (distX < 0) ? 'left' : 'right'; // if dist traveled is negative, it indicates left swipe
+                swipedir = (distX < 0) ? 'right' : 'left'; // if dist traveled is negative, it indicates left swipe
             } else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { // 2nd condition for vertical swipe met
-                swipedir = (distY < 0) ? 'up' : 'down'; // if dist traveled is negative, it indicates up swipe
+                swipedir = (distY < 0) ? 'down' : 'up'; // if dist traveled is negative, it indicates up swipe
             }
         }
         handleswipe(swipedir);
@@ -368,6 +388,49 @@ function swipedetect(el, callback) {
     }, false);
 }
 
+var parseRSS = function () {
+    $.get("proxy_file.php", function (data) {
+        $(data).find("item").each(function () {
+            var el = $(this);
+
+            var title = el.find("title").text();
+            var titleItems = title.split(" ");
+
+            var foodWeek = parseInt(titleItems[3]);
+            var foodDay = titleItems[0];
+
+            var foodDescFull = el.find("description").text();
+
+            if (foodDescFull.indexOf("<br/>") !== -1) {
+                foodDescFull = foodDescFull.substring(foodDescFull.indexOf("<br/>") + 5, foodDescFull.length);
+            }
+
+            var foodDesc = foodDescFull.trim();
+
+            foodWeeks.add(foodWeek);
+            foodDays.add(foodDay);
+            foodDescs.push(foodDesc);
+        });
+    });
+}
+
+var getFoods = function () {
+    foodWeeks = Array.from(foodWeeks);
+    foodDays = Array.from(foodDays);
+
+    for (var i = 0; i < 5; i++) {
+        foodDay = foodDays[i];
+        food[foodWeeks[0]] = {foodDay};
+        food[foodWeeks[1]] = {foodDay};
+    }
+
+    for (var i = 0; i < 5; i++) {
+        food[foodWeeks[0]][foodDays[i]] = foodDescs[i];
+        food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 4];
+    }
+}
+
+parseRSS();
 setDefaultValues();
 displayDefaultValues();
 background.style.backgroundImage = "url(" + getImage(IDType) + ")";
