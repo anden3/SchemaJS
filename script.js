@@ -10,8 +10,10 @@ Date.prototype.getActualDay = function () {
 
 var background = document.getElementById("schedule"),
     settings = document.getElementById("settings"),
-    days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
-    settingsVisible = false;
+    days = ["M\u{E5}ndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
+    settingsVisible = false,
+    weeksAdded = 0,
+    daysAdded = 0;
 
 
 var createCookie = function (name, value, days) {
@@ -136,7 +138,7 @@ var toggleSettings = function (toggle) {
     }
 }
 
-var submitSettings = function (swipe) {
+var submitSettings = function (direction) {
     schoolID = document.getElementById("schoolID").value;
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
@@ -163,17 +165,45 @@ var submitSettings = function (swipe) {
         dayPicked = dayPickedTagged.substring(3, dayPickedTagged.length - 4),
         dayIndex = days.indexOf(dayPicked);
 
-    dayIndex += swipe;
     document.getElementById("dayPicker").innerHTML = "<p>" + days[dayIndex] + "</p>";
 
-    if (dayIndex < 5) {
+    if (direction === "left") {
+        daysAdded -= 1;
+        dayIndex += daysAdded;
+        if (dayIndex < 0) {
+            weeksAdded -= 1;
+
+            daysAdded += 5;
+            dayIndex = 5;
+        }
+    }
+    else if (direction === "up") {
+        weeksAdded += 1;
+    }
+    else if (direction === "right") {
+        daysAdded += 1;
+        dayIndex += daysAdded;
+        if (dayIndex > 5) {
+            weeksAdded += 1;
+
+            daysAdded -= 5;
+            dayIndex = 0;
+        }
+    }
+    else if (direction === "down") {
+        weeksAdded -= 1;
+    }
+
+    week = parseInt(week, 10) + weeksAdded;
+
+    if (dayIndex != 5) {
         today = Math.pow(2, dayIndex);
-    } else {
+    }
+    else {
         today = 0;
     }
 
     background.style.backgroundImage = "url(" + getImage(IDType) + ")";
-
     toggleSettings(0);
 }
 
@@ -233,13 +263,26 @@ var eventListeners = function () {
         });
 
         swipedetect(background, function (swipedir) {
-            if (swipedir === "left") {
-                submitSettings(1);
-            } else if (swipedir === "right") {
-                submitSettings(-1);
-            }
+            submitSettings(swipedir);
         });
     } else {
+        window.addEventListener("keydown", function () {
+            if (settingsVisible === false) {
+                if (event.keyCode === 37) {
+                    submitSettings("left");
+                }
+                else if (event.keyCode === 38) {
+                    submitSettings("up");
+                }
+                else if (event.keyCode === 39) {
+                    submitSettings("right");
+                }
+                else if (event.keyCode === 40) {
+                    submitSettings("down");
+                }
+            }
+        });
+
         document.getElementById("settingsButton").addEventListener("click", function () {
             toggleSettings(1);
         });
