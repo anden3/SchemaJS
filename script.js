@@ -426,7 +426,7 @@ var getFoods = function () {
 
     for (var i = 0; i < 5; i++) {
         food[foodWeeks[0]][foodDays[i]] = foodDescs[i];
-        food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 4];
+        food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 5];
     }
 }
 

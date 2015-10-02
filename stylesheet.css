@@ -60,6 +60,7 @@ body {
     background-color: #3F51B5;
     text-align: center;
     display: none;
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
 }
 
 #food * {
@@ -108,6 +109,11 @@ body {
 .row h4 {
     font-size: 24px;
     margin: 5px 0 5px 10px;
+}
+
+.row ul {
+    height: 200px;
+    overflow: scroll;
 }
 
 .row form div {
