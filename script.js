@@ -464,13 +464,14 @@ var getFoods = function () {
             food[foodWeeks[0]][foodDays[i]] = foodDescs[i];
             food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 5];
         }
+        submitSettings();
     });
 }
 
 
-parseRSS();
-getFoods();
 setDefaultValues();
 displayDefaultValues();
+parseRSS();
+getFoods();
 background.style.backgroundImage = "url(" + getImage(IDType) + ")";
 eventListeners();
