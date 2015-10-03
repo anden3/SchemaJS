@@ -28,8 +28,6 @@ if ( $_POST ) {
         die('Error: ' . mysqli_error($con));
     }
 
-    echo "Record added";
-
     mysqli_close($con);
 }
 
