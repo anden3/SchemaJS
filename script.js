@@ -102,6 +102,14 @@ var setDefaultValues = function () {
 
     week = (new Date()).getWeek();
     today = Math.pow(2, (new Date()).getActualDay());
+
+    if (today >= 32) {
+        today = 1;
+    }
+    else {
+        week = parseInt(week);
+        week -= 1;
+    }
 }
 
 var displayDefaultValues = function () {
