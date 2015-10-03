@@ -21,10 +21,6 @@ var header = document.getElementById("header"),
     food = {},
     primaryKey = 0;
 
-var schools = {
-    29540: "elof-lindalvs-gymnasium"
-}
-
 
 var createCookie = function (name, value, days) {
     if (days) {
@@ -397,10 +393,6 @@ var parseRSS = function () {
 
     primaryKey = (weeksStored * 5);
 
-    $.post("proxy_file.php", {
-        ID: schools[schoolID]
-    });
-
     $.get("proxy_file.php", function (data) {
         $(data).find("item").each(function () {
             var el = $(this);
@@ -430,7 +422,9 @@ var parseRSS = function () {
             primaryKey += 1;
         });
     });
+}
 
+var getFoods = function () {
     $.get("get_foods.php", function (data) {
         foodData = data.match(/[^\r\n]+/g);
         for (var i = 0; i < foodData.length; i++) {
@@ -475,6 +469,7 @@ var parseRSS = function () {
 
 
 parseRSS();
+getFoods();
 setDefaultValues();
 displayDefaultValues();
 background.style.backgroundImage = "url(" + getImage(IDType) + ")";
