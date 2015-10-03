@@ -21,7 +21,7 @@ if ( $_POST ) {
     $desc = mysqli_real_escape_string($con, $desc);
     $key = mysqli_real_escape_string($con, $key);
 
-    $sql="INSERT INTO food (Week, Day, Mat, PrimaryKey)
+    $sql = "INSERT INTO food (Week, Day, Mat, PrimaryKey)
     VALUES ('$week', '$day', '$desc', '$key')";
 
     if (!mysqli_query($con, $sql)) {
