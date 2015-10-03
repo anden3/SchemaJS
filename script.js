@@ -18,7 +18,8 @@ var header = document.getElementById("header"),
     foodWeeks = new Set(),
     foodDays = new Set(),
     foodDescs = [],
-    food = {};
+    food = {},
+    primaryKey = 0;
 
 
 var createCookie = function (name, value, days) {
@@ -152,8 +153,6 @@ var toggleSettings = function (toggle) {
 }
 
 var submitSettings = function (direction) {
-    getFoods();
-
     schoolID = document.getElementById("schoolID").value;
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
@@ -214,6 +213,7 @@ var submitSettings = function (direction) {
 
     document.getElementById("dayPicker").innerHTML = "<p>" + days[dayIndex] + "</p>";
     document.getElementById("week").value = week;
+    week = week.toString();
 
     if (dayIndex < 5 && foodWeeks.indexOf(week) != -1) {
         header.style.height = "12vh";
@@ -397,9 +397,15 @@ function swipedetect(el, callback) {
 }
 
 var parseRSS = function () {
+    var currentWeek = (new Date()).getWeek();
+    var weeksStored = currentWeek - 41;
+
+    primaryKey = (weeksStored * 5);
+
     $.get("proxy_file.php", function (data) {
         $(data).find("item").each(function () {
             var el = $(this);
+            var foodData;
 
             var title = el.find("title").text();
             var titleItems = title.split(" ");
@@ -415,27 +421,53 @@ var parseRSS = function () {
 
             var foodDesc = foodDescFull.trim();
 
-            foodWeeks.add(foodWeek);
-            foodDays.add(foodDay);
-            foodDescs.push(foodDesc);
+            $.post('store_foods.php', {
+                week: foodWeek,
+                day: foodDay,
+                desc: foodDesc,
+                key: primaryKey
+            });
+
+            primaryKey += 1;
         });
     });
-}
 
-var getFoods = function () {
-    foodWeeks = Array.from(foodWeeks);
-    foodDays = Array.from(foodDays);
+    $.get("get_foods.php", function (data) {
+        foodData = data.match(/[^\r\n]+/g);
+        for (var i = 0; i < foodData.length; i++) {
+            foodData[i] = foodData[i].replace("Ã¥", "å");
+            foodData[i] = foodData[i].replace("Ã¥", "å");
+            foodData[i] = foodData[i].replace("Ã¤", "ä");
+            foodData[i] = foodData[i].replace("Ã¶", "ö");
+            foodData[i] = foodData[i].replace("Ã©", "é");
 
-    for (var i = 0; i < 5; i++) {
-        foodDay = foodDays[i];
-        food[foodWeeks[0]] = {foodDay};
-        food[foodWeeks[1]] = {foodDay};
-    }
+            var foodDataSplit = foodData[i].split(" ");
 
-    for (var i = 0; i < 5; i++) {
-        food[foodWeeks[0]][foodDays[i]] = foodDescs[i];
-        food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 5];
-    }
+            foodWeeks.add(foodDataSplit[0]);
+            foodDataSplit.shift();
+
+            foodDays.add(foodDataSplit[0]);
+            foodDataSplit.shift();
+
+            var foodDesc = foodDataSplit.join(" ");
+            foodDesc = foodDesc.substring(1, foodDesc.length - 1);
+            foodDescs.push(foodDesc);
+        }
+
+        foodWeeks = Array.from(foodWeeks);
+        foodDays = Array.from(foodDays);
+
+        for (var i = 0; i < 5; i++) {
+            foodDay = foodDays[i];
+            food[foodWeeks[0]] = {foodDay};
+            food[foodWeeks[1]] = {foodDay};
+        }
+
+        for (var i = 0; i < 5; i++) {
+            food[foodWeeks[0]][foodDays[i]] = foodDescs[i];
+            food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 5];
+        }
+    });
 }
 
 
