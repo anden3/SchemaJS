@@ -468,10 +468,21 @@ var getFoods = function () {
     });
 }
 
+function timer() {
+    (function loop() {
+        var now = new Date();
+        if (now.getDate() % 7 === 0 && now.getHours() === 12 && now.getMinutes() === 0) {
+            parseRSS();
+        }
+        now = new Date();                  // allow for time passing
+        var delay = 60000 - (now % 60000); // exact ms to next minute interval
+        setTimeout(loop, delay);
+    })();
+}
 
 setDefaultValues();
 displayDefaultValues();
-parseRSS();
 getFoods();
 background.style.backgroundImage = "url(" + getImage(IDType) + ")";
 eventListeners();
+surprise();
