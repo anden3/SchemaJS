@@ -106,8 +106,7 @@ var setDefaultValues = function () {
 
     if (today >= 32) {
         today = 1;
-    }
-    else {
+    } else {
         week = parseInt(week);
         week -= 1;
     }
@@ -186,28 +185,24 @@ var submitSettings = function (direction) {
             week -= 1;
             dayIndex = 5;
         }
-    }
-    else if (direction === "up") {
+    } else if (direction === "up") {
         week += 1;
         dayIndex += daysAdded;
-    }
-    else if (direction === "right") {
+    } else if (direction === "right") {
         dayIndex += 1;
 
         if (dayIndex > 5) {
             week += 1;
             dayIndex = 0;
         }
-    }
-    else if (direction === "down") {
+    } else if (direction === "down") {
         week -= 1;
         dayIndex += daysAdded;
     }
 
     if (dayIndex != 5) {
         today = Math.pow(2, dayIndex);
-    }
-    else {
+    } else {
         today = 0;
     }
 
@@ -220,8 +215,7 @@ var submitSettings = function (direction) {
         foodElement.style.display = "block";
         background.style.marginTop = "12vh";
         foodElement.innerHTML = "<p>" + food[week][days[dayIndex]] + "</p>";
-    }
-    else {
+    } else {
         header.style.height = "6vh";
         foodElement.style.display = "none";
         background.style.marginTop = "6vh";
@@ -296,14 +290,11 @@ var eventListeners = function () {
             if (settingsVisible === false) {
                 if (event.keyCode === 37) {
                     submitSettings("left");
-                }
-                else if (event.keyCode === 38) {
+                } else if (event.keyCode === 38) {
                     submitSettings("up");
-                }
-                else if (event.keyCode === 39) {
+                } else if (event.keyCode === 39) {
                     submitSettings("right");
-                }
-                else if (event.keyCode === 40) {
+                } else if (event.keyCode === 40) {
                     submitSettings("down");
                 }
             }
@@ -459,8 +450,12 @@ var parseRSS = function () {
 
         for (var i = 0; i < 5; i++) {
             foodDay = foodDays[i];
-            food[foodWeeks[0]] = {foodDay};
-            food[foodWeeks[1]] = {foodDay};
+            food[foodWeeks[0]] = {
+                foodDay
+            };
+            food[foodWeeks[1]] = {
+                foodDay
+            };
         }
 
         for (var i = 0; i < 5; i++) {
