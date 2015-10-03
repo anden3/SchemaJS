@@ -393,7 +393,7 @@ function swipedetect(el, callback) {
 
 var parseRSS = function () {
     var currentWeek = (new Date()).getWeek();
-    var weeksStored = currentWeek - 37;
+    var weeksStored = currentWeek - 41;
 
     primaryKey = (weeksStored * 5);
 
