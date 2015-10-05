@@ -106,9 +106,9 @@ var setDefaultValues = function () {
 
     if (today >= 32) {
         today = 1;
+        week += 1;
     } else {
         week = parseInt(week);
-        week -= 1;
     }
 }
 
@@ -389,7 +389,7 @@ function swipedetect(el, callback) {
 
 var parseRSS = function () {
     var currentWeek = (new Date()).getWeek();
-    var weeksStored = currentWeek - 41;
+    var weeksStored = currentWeek - 40;
 
     primaryKey = (weeksStored * 5);
 
@@ -433,51 +433,50 @@ var getFoods = function () {
             foodData[i] = foodData[i].replace("Ã¤", "ä");
             foodData[i] = foodData[i].replace("Ã¶", "ö");
             foodData[i] = foodData[i].replace("Ã©", "é");
+            foodData[i] = foodData[i].replace("Ã¶", "ö");
+            foodData[i] = foodData[i].replace("Ã¤", "ä");
 
             var foodDataSplit = foodData[i].split(" ");
 
-            foodWeeks.add(foodDataSplit[0]);
+            if (foodDataSplit[0] != "") {
+                foodWeeks.add(foodDataSplit[0]);
+            }
+
             foodDataSplit.shift();
 
-            foodDays.add(foodDataSplit[0]);
+            if (foodDataSplit[0] != "") {
+                foodDays.add(foodDataSplit[0]);
+            }
+
             foodDataSplit.shift();
 
             var foodDesc = foodDataSplit.join(" ");
             foodDesc = foodDesc.substring(1, foodDesc.length - 1);
-            foodDescs.push(foodDesc);
+
+            if (foodDesc != "      ") {
+                foodDescs.push(foodDesc);
+            }
         }
 
         foodWeeks = Array.from(foodWeeks);
         foodDays = Array.from(foodDays);
 
         for (var i = 0; i < 5; i++) {
-            foodDay = foodDays[i];
-            food[foodWeeks[0]] = {
-                foodDay
-            };
-            food[foodWeeks[1]] = {
-                foodDay
-            };
+            for (var x = 0; x < foodWeeks.length; x++) {
+                foodDay = foodDays[i];
+                food[foodWeeks[x]] = {
+                    foodDay
+                }
+            }
         }
 
         for (var i = 0; i < 5; i++) {
-            food[foodWeeks[0]][foodDays[i]] = foodDescs[i];
-            food[foodWeeks[1]][foodDays[i]] = foodDescs[i + 5];
+            for (var x = 0; x < foodWeeks.length; x++) {
+                food[foodWeeks[x]][foodDays[i]] = foodDescs[i + (5 * x)];
+            }
         }
         submitSettings();
     });
-}
-
-function timer() {
-    (function loop() {
-        var now = new Date();
-        if (now.getDate() % 7 === 0 && now.getHours() === 12 && now.getMinutes() === 0) {
-            parseRSS();
-        }
-        now = new Date();                  // allow for time passing
-        var delay = 60000 - (now % 60000); // exact ms to next minute interval
-        setTimeout(loop, delay);
-    })();
 }
 
 setDefaultValues();
@@ -485,4 +484,3 @@ displayDefaultValues();
 getFoods();
 background.style.backgroundImage = "url(" + getImage(IDType) + ")";
 eventListeners();
-surprise();
