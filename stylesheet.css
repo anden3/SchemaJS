@@ -170,6 +170,7 @@ body {
     margin-right: 10px;
 }
 
+/*iPhone compatibity*/
 .clickable {
 	cursor: pointer;
 }
