@@ -3,7 +3,7 @@
 //Set proper header to reduce broken characters
 header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 
-$pass = file("sql_pass.txt")[0];
+$pass = rtrim(file_get_contents("sql_pass.txt"));
 
 //Connect to the SQL-database
 $con = mysqli_connect("localhost", "root", $pass, "matsedel");

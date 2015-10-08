@@ -1,6 +1,6 @@
 <?php
 
-$pass = file("sql_pass.txt")[0];
+$pass = rtrim(file_get_contents("sql_pass.txt"));
 
 //If the file receives a POST request
 if ( $_POST ) {
