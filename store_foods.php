@@ -1,6 +1,6 @@
 <?php
 
-$pass = file_get_contents("sql_pass.txt");
+$pass = file("sql_pass.txt")[0];
 
 //If the file receives a POST request
 if ( $_POST ) {
