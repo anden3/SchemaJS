@@ -18,8 +18,8 @@ var header = document.getElementById("header"),
     settingsVisible = false,
     weeksAdded = 0,
     daysAdded = 0,
-    foodWeeks = new Set(),
-    foodDays = new Set(),
+    foodWeeks = {},
+    foodDays = {},
     foodDescs = [],
     food = {},
     primaryKey = 0;
@@ -485,7 +485,7 @@ var getFoods = function () {
 
             //Adds the first word to the foodWeeks set
             if (foodDataSplit[0] != "") {
-                foodWeeks.add(foodDataSplit[0]);
+                foodWeeks[foodDataSplit[0]] = true;
             }
 
             //Removes the first word
@@ -493,7 +493,7 @@ var getFoods = function () {
 
             //Adds the first word to the foodDays set
             if (foodDataSplit[0] != "") {
-                foodDays.add(foodDataSplit[0]);
+                foodDays[foodDataSplit[0]] = true;
             }
 
             //Removes the first word
@@ -510,15 +510,15 @@ var getFoods = function () {
         }
 
         //Converting the foodWeeks and foodDays sets to arrays
-        foodWeeks = Array.from(foodWeeks);
-        foodDays = Array.from(foodDays);
+        foodWeeks = Object.keys(foodWeeks);
+        foodDays = Object.keys(foodDays);
 
         //Iterate over the foodDays and foodWeeks arrays, and append them to the food object
         for (var x = 0; x < foodDays.length; x++) {
             for (var y = 0; y < foodWeeks.length; y++) {
                 foodDay = foodDays[x];
                 food[foodWeeks[y]] = {
-                    foodDay
+                    foodDay: null
                 }
             }
         }

@@ -1,5 +1,6 @@
 <?php
 
+//Gets pass from ignored text file
 $pass = rtrim(file_get_contents("sql_pass.txt"));
 
 //If the file receives a POST request
