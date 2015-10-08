@@ -1,12 +1,14 @@
 <?php
 
+$pass = file_get_contents("sql_pass.txt");
+
 //If the file receives a POST request
 if ( $_POST ) {
     //Set proper header to reduce broken characters
     header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 
     //Connect to the SQL-database
-    $con = mysqli_connect("localhost", "root", "HU6oeiUWpkQ3j0Yssg8X", "matsedel");
+    $con = mysqli_connect("localhost", "root", $pass, "matsedel");
 
     //Set the correct charset
     mysqli_set_charset($con,"utf8mb4");
