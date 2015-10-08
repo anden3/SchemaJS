@@ -317,7 +317,9 @@ var eventListeners = function () {
         });
 
         swipedetect(background, function (swipedir) {
-            submitSettings(swipedir);
+	    if (swipedir != "none") {
+	        submitSettings(swipedir);
+	    }
         });
     } else { //If the client doesn't have a touch screen, check for click events instead of touchstart/end events
         window.addEventListener("keydown", function () {
@@ -407,7 +409,7 @@ function swipedetect(el, callback) {
         distX = touchobj.pageX - startX; //Get horizontal dist traveled by finger while in contact with surface
         distY = touchobj.pageY - startY; //Get vertical dist traveled by finger while in contact with surface
         elapsedTime = new Date().getTime() - startTime; //Get time elapsed
-
+		
         if (elapsedTime <= allowedTime) { //First condition for a swipe met
             if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { //Second condition for horizontal swipe met
                 swipedir = (distX < 0) ? 'right' : 'left'; //If dist traveled is negative, it indicates left swipe
