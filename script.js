@@ -420,9 +420,8 @@ function swipedetect(el, callback) {
     }, false);
 
     touchsurface.addEventListener('touchend', function (e) {
-        var touchobj = e.changedTouches[0];
-
-        var distX = touchobj.pageX - startX, //Get horizontal dist traveled by finger while in contact with surface
+        var touchobj = e.changedTouches[0],
+            distX = touchobj.pageX - startX, //Get horizontal dist traveled by finger while in contact with surface
             distY = touchobj.pageY - startY, //Get vertical dist traveled by finger while in contact with surface
             elapsedTime = new Date().getTime() - startTime; //Get time elapsed
 
