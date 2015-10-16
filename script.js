@@ -11,6 +11,8 @@ Date.prototype.getWeek = function () {
 
 //Adding default variables and values
 var header = document.getElementById("header"),
+    headerHeight,
+    scheduleHeight,
     foodElement = document.getElementById("food"),
     background = document.getElementById("schedule"),
     settings = document.getElementById("settings"),
@@ -23,7 +25,7 @@ var header = document.getElementById("header"),
     food = {},
     primaryKey = 0,
     replaceChars = [["Ã¥", "Ã¥", "Ã¤", "Ã¶", "Ã©", "Ã¶", "Ã¤", "Ã–"], ["å", "å", "ä", "ö", "é", "ö", "ä", "Ö"]],
-    values = ["scheduleType", "IDType", "schoolID", "userID", "classID", "teacherID", "subjectID", "week"];
+    values = ["scheduleType", "IDType", "schoolID", "userID", "classID", "roomID", "teacherID", "subjectID", "week"];
 
 //Function to create a cookie
 var createCookie = function (name, value, days) {
@@ -91,6 +93,14 @@ var setDefaultValues = function () {
         classID = "";
     }
 
+    if (readCookie("ROOMID") !== null) {
+        roomID = readCookie("ROOMID");
+    } else if (localStorage.roomID !== "undefined" && typeof localStorage.roomID !== "undefined") {
+        roomID = localStorage.roomID;
+    } else {
+        roomID = "";
+    }
+
     if (readCookie("TEACHERID") !== null) {
         teacherID = readCookie("TEACHERID");
     } else if (localStorage.teacherID !== "undefined" && typeof localStorage.teacherID !== "undefined") {
@@ -149,6 +159,25 @@ var displayDefaultValues = function () {
     document.getElementById(scheduleType + "Radio").checked = true;
 }
 
+var progressBar = function () {
+    var now = new Date(),
+        dd = ('0' + now.getDate()).slice(-2),
+        mm = (parseInt(('0' + now.getMonth()).slice(-2)) + 1).toString(),
+        yyyy = now.getFullYear(),
+
+        testTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (12 + (now.getTimezoneOffset() / 60)).toString() + ":00:00"),
+
+        startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 + (now.getTimezoneOffset() / 60)).toString() + ":35:00"),
+        endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 + (now.getTimezoneOffset() / 60)).toString() + ":50:00"),
+        timeBetween = endTime - startTime,
+        percentComplete = (testTime - startTime) / timeBetween,
+        pixelDistance = scheduleHeight * percentComplete;
+
+        bar = document.getElementById("progress");
+
+    bar.style.top = headerHeight + pixelDistance;
+}
+
 //Getting the image from the schedule generator
 var getImage = function () {
     var ID;
@@ -156,11 +185,15 @@ var getImage = function () {
     //Getting the height of the header
     var header = document.getElementById("header"),
         headerStyle = getComputedStyle(header),
-        headerHeight = headerStyle.getPropertyValue('height');
+        headerHeightValue = headerStyle.getPropertyValue('height');
+
+    headerHeight = Math.round(headerHeightValue.substring(0, headerHeightValue.length - 2));
 
     //Setting the dimensions of the image to the width of the window, and the height to the height of the window - the height of the header
     var width = window.innerWidth,
-        height = window.innerHeight - Math.round(headerHeight.substring(0, headerHeight.length - 2));
+        height = window.innerHeight - headerHeight;
+
+    scheduleHeight = height;
 
     //Setting the background div to the image size
     background.style.width = width;
@@ -169,28 +202,46 @@ var getImage = function () {
     if (scheduleType === "student") {
         return setImage(schoolID, IDType, week, today, width, height);
     }
-    else if (scheduleType === "teacher") {
-        //ID = teacherID;
-
-        $.post('get_teacher.php', {
-            teacher: teacherID
+    else if (scheduleType === "room") {
+        ID = roomID;
+        /*
+        $.post('get_item.php', {
+            item: roomID,
+            type: "room"
         }, function (data) {
             if (data !== "error") {
                 return setImage(schoolID, data, week, today, width, height);
             }
         });
+        */
+    }
+    else if (scheduleType === "teacher") {
+        ID = teacherID;
+        /*
+        $.post('get_item.php', {
+            item: teacherID,
+            type: "teacher"
+        }, function (data) {
+            if (data !== "error") {
+                return setImage(schoolID, data, week, today, width, height);
+            }
+        });
+        */
     }
     else if (scheduleType === "subject") {
-        //ID = subjectID;
-
-        $.post('get_subject.php', {
-            subject: subjectID
+        ID = subjectID;
+        /*
+        $.post('get_item.php', {
+            item: subjectID,
+            type: "subject"
         }, function (data) {
             if (data !== "error") {
                 return setImage(schoolID, data, week, today, width, height);
             }
         });
+        */
     }
+    setImage(schoolID, ID, week, today, width, height);
 
 };
 
@@ -233,6 +284,7 @@ var submitSettings = function (direction) {
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
 
+    roomID = document.getElementById("roomID").value;
     teacherID = document.getElementById("teacherID").value;
     subjectID = document.getElementById("subjectID").value;
 
@@ -329,6 +381,8 @@ var submitSettings = function (direction) {
     //Set the background image to the schedule
     getImage();
 
+    progressBar();
+
     //Hide the settings window
     toggleSettings(0);
 };
@@ -338,16 +392,25 @@ var changeOptions = function (button) {
 
     if (button === "studentRadio") {
         $(".studentOptions").css("display", "block");
+        $(".roomOptions").css("display", "none");
+        $(".teacherOptions").css("display", "none");
+        $(".subjectOptions").css("display", "none");
+    }
+    else if (button === "roomRadio") {
+        $(".studentOptions").css("display", "none");
+        $(".roomOptions").css("display", "block");
         $(".teacherOptions").css("display", "none");
         $(".subjectOptions").css("display", "none");
     }
     else if (button === "teacherRadio") {
         $(".studentOptions").css("display", "none");
+        $(".roomOptions").css("display", "none");
         $(".teacherOptions").css("display", "block");
         $(".subjectOptions").css("display", "none");
     }
     else if (button === "subjectRadio") {
         $(".studentOptions").css("display", "none");
+        $(".roomOptions").css("display", "none");
         $(".teacherOptions").css("display", "none");
         $(".subjectOptions").css("display", "block");
     }
@@ -658,5 +721,4 @@ var getFoods = function () {
 setDefaultValues();
 displayDefaultValues();
 getFoods();
-//background.style.backgroundImage = "url(" + getImage() + ")";
 eventListeners();

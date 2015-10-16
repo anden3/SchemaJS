@@ -30,6 +30,7 @@
         <div id="food"></div>
     </div>
     <div id="schedule"></div>
+    <div id="progress"></div>
     <div class="settings" id="settings">
         <div class="row">
             <h4>Inställningar</h4>
@@ -74,6 +75,12 @@
                     <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect clickable" for="studentRadio">
                         <input type="radio" id="studentRadio" class="mdl-radio__button" name="type" value="1" checked />
                         <span class="mdl-radio__label">Elev</span>
+                    </label>
+                </span>
+                <span class="radio">
+                    <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect clickable" for="roomRadio">
+                        <input type="radio" id="roomRadio" class="mdl-radio__button" name="type" value="1" />
+                        <span class="mdl-radio__label">Sal</span>
                     </label>
                 </span>
                 <span class="radio">
@@ -122,6 +129,17 @@
                             <span class="mdl-radio__label">Klass</span>
                         </label>
                     </span>
+                </div>
+            </div>
+            <div class="roomOptions option">
+                <div class="row">
+                    <p>Sal: </p>
+                    <form action="#">
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <input class="mdl-textfield__input" type="text" id="roomID" />
+                            <label class="mdl-textfield__label" for="roomID" id="roomIDLabel"></label>
+                        </div>
+                    </form>
                 </div>
             </div>
             <div class="teacherOptions option">

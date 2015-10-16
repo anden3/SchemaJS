@@ -3,7 +3,7 @@
 //Gets pass from ignored text file
 $pass = rtrim(file_get_contents("sql_pass.txt"));
 
-if ( $_POST ) {
+//if ( $_POST ) {
     //Set proper header to reduce broken characters
     header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 
@@ -19,12 +19,12 @@ if ( $_POST ) {
     }
 
     //Save the sent variables to local variables
-    $subject = $_POST['subject'];
-    $subject = mysqli_real_escape_string($con, $subject);
+    $item = $_POST['item'];
+    $table = $_POST['type'] . "s";
 
     //Save the SQL-query as a string
-    $query = "SELECT ID FROM subjects
-    WHERE UPPER(Name) LIKE UPPER('$subject')";
+    $query = "SELECT ID FROM $table
+    WHERE UPPER(Name) LIKE UPPER('$item')";
 
     //Run the query, and save the results in an object
     if ($result = mysqli_query($con, $query)) {
@@ -41,6 +41,6 @@ if ( $_POST ) {
 
     //Close the connection
     mysqli_close($con);
-}
+//}
 
 ?>
