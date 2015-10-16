@@ -118,19 +118,16 @@ body {
 .studentOptions {
 	padding: 0;
     margin: 0;
-    display: block;
 }
 
 .teacherOptions {
 	padding: 0;
     margin: 0;
-    display: none;
 }
 
 .subjectOptions {
 	padding: 0;
     margin: 0;
-    display: none;
 }
 
 div.row.radio {

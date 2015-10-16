@@ -23,7 +23,7 @@ var header = document.getElementById("header"),
     food = {},
     primaryKey = 0,
     replaceChars = [["Ã¥", "Ã¥", "Ã¤", "Ã¶", "Ã©", "Ã¶", "Ã¤", "Ã–"], ["å", "å", "ä", "ö", "é", "ö", "ä", "Ö"]],
-    values = ["IDType", "schoolID", "userID", "classID", "week"];
+    values = ["scheduleType", "IDType", "schoolID", "userID", "classID", "week"];
 
 //Function to create a cookie
 var createCookie = function (name, value, days) {
@@ -67,6 +67,14 @@ var setDefaultValues = function () {
         schoolID = "29540";
     }
 
+    if (readCookie("SCHEDULETYPE") !== null) {
+        scheduleType = readCookie("SCHEDULETYPE");
+    } else if (localStorage.scheduleType !== "undefined" && typeof localStorage.scheduleType !== "undefined") {
+        scheduleType = localStorage.scheduleType;
+    } else {
+        scheduleType = "student";
+    }
+
     if (readCookie("USERID") !== null) {
         userID = readCookie("USERID");
     } else if (localStorage.userID !== "undefined" && typeof localStorage.userID !== "undefined") {
@@ -88,24 +96,19 @@ var setDefaultValues = function () {
         IDType = readCookie("IDTYPE");
         if (IDType.length >= 10) {
             document.getElementById("userRadio").checked = true;
-            document.getElementById("classRadio").checked = false;
         } else {
             document.getElementById("classRadio").checked = true;
-            document.getElementById("userRadio").checked = false;
         }
     } else if (localStorage.IDType !== "undefined" && typeof localStorage.IDType !== "undefined") {
         IDType = localStorage.IDType;
         if (IDType.length >= 10) {
             document.getElementById("userRadio").checked = true;
-            document.getElementById("classRadio").checked = false;
         } else {
             document.getElementById("classRadio").checked = true;
-            document.getElementById("userRadio").checked = false;
         }
     } else {
         IDType = userID;
         document.getElementById("userRadio").checked = true;
-        document.getElementById("classRadio").checked = false;
     }
 
     week = (new Date()).getWeek();
@@ -123,10 +126,11 @@ var setDefaultValues = function () {
 
 //Update the values of the settings with the stored values
 var displayDefaultValues = function () {
-    for (var i = 1; i < values.length; i++) {
+    for (var i = 2; i < values.length; i++) {
         document.getElementById(values[i]).value = window[values[i]];
     }
     document.getElementById("dayPicker").innerHTML = "<p>" + days[Math.log2(today)] + "</p>";
+    document.getElementById(scheduleType + "Radio").checked = true;
 }
 
 //Getting the image from the schedule generator
@@ -175,27 +179,31 @@ var submitSettings = function (direction) {
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
 
-    //Checks if the year in the userID is written using four numbers, and if so, decreases it to two numbers
-    if (userID.length > 11) {
-        userID = userID.substring(2, userID.length);
-        document.getElementById("userID").value = userID;
-    }
+    changeOptions(scheduleType + "Radio");
 
-    //Checks if the userID has a dash in it, and if not, it adds one
-    if (userID.substring(userID.length - 5, userID.length - 4) !== "-" && userID != "") {
-        userID = userID.substring(0, userID.length - 4) + "-" + userID.substring(userID.length - 4, userID.length);
-        document.getElementById("userID").value = userID;
-    }
+    if (scheduleType === "student") {
+        //Checks if the year in the userID is written using four numbers, and if so, decreases it to two numbers
+        if (userID.length > 11) {
+            userID = userID.substring(2, userID.length);
+            document.getElementById("userID").value = userID;
+        }
 
-    //Converts classID to only uppercase letters
-    classID = classID.toUpperCase();
-    document.getElementById("classID").value = classID;
+        //Checks if the userID has a dash in it, and if not, it adds one
+        if (userID.substring(userID.length - 5, userID.length - 4) !== "-" && userID != "") {
+            userID = userID.substring(0, userID.length - 4) + "-" + userID.substring(userID.length - 4, userID.length);
+            document.getElementById("userID").value = userID;
+        }
 
-    //Checking which radio button is checked, and saving the corresponding id to IDType
-    if (document.getElementById("userRadio").checked) {
-        IDType = userID;
-    } else {
-        IDType = classID;
+        //Converts classID to only uppercase letters
+        classID = classID.toUpperCase();
+        document.getElementById("classID").value = classID;
+
+        //Checking which radio button is checked, and saving the corresponding id to IDType
+        if (document.getElementById("userRadio").checked) {
+            IDType = userID;
+        } else {
+            IDType = classID;
+        }
     }
 
     //Saving the variables to cookies
@@ -204,6 +212,8 @@ var submitSettings = function (direction) {
         var tempArray = values[i].toUpperCase();
         createCookie(tempArray, window[values[i]], 365);
     }
+
+    console.log(localStorage.scheduleType);
 
     //Getting the week from the number field
     week = parseInt(document.getElementById("week").value, 10);
@@ -267,6 +277,28 @@ var submitSettings = function (direction) {
     //Hide the settings window
     toggleSettings(0);
 };
+
+var changeOptions = function (button) {
+    var checkedOption = "";
+
+    if (button === "studentRadio") {
+        $(".studentOptions").css("display", "block");
+        $(".teacherOptions").css("display", "none");
+        $(".subjectOptions").css("display", "none");
+    }
+    else if (button === "teacherRadio") {
+        $(".studentOptions").css("display", "none");
+        $(".teacherOptions").css("display", "block");
+        $(".subjectOptions").css("display", "none");
+    }
+    else if (button === "subjectRadio") {
+        $(".studentOptions").css("display", "none");
+        $(".teacherOptions").css("display", "none");
+        $(".subjectOptions").css("display", "block");
+    }
+
+    scheduleType = button.substring(0, button.length - 5);
+}
 
 //Adding event listeners for different events
 var eventListeners = function () {
@@ -387,23 +419,7 @@ var eventListeners = function () {
 
         for (var i = 0; i < radioButtons.length; i++) {
             $(radioButtons[i]).click(function () {
-                var button = event.srcElement.id;
-
-                if (button === "studentRadio") {
-                    $(".studentOptions").css("display", "block");
-                    $(".teacherOptions").css("display", "none");
-                    $(".subjectOptions").css("display", "none");
-                }
-                else if (button === "teacherRadio") {
-                    $(".studentOptions").css("display", "none");
-                    $(".teacherOptions").css("display", "block");
-                    $(".subjectOptions").css("display", "none");
-                }
-                else if (button === "subjectRadio") {
-                    $(".studentOptions").css("display", "none");
-                    $(".teacherOptions").css("display", "none");
-                    $(".subjectOptions").css("display", "block");
-                }
+                changeOptions(event.srcElement.id);
             });
         }
 
