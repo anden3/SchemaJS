@@ -59,7 +59,7 @@ var readCookie = function (name) {
 
 //Updating the values with the ones stored in cookies or localstorage, as well as adding the current week and day
 var setDefaultValues = function () {
-    if (readCookie("schoolID") !== null) {
+    if (readCookie("SCHOOLID") !== null) {
         schoolID = readCookie("SCHOOLID");
     } else if (localStorage.schoolID !== "undefined" && typeof localStorage.schoolID !== "undefined") {
         schoolID = localStorage.schoolID;
@@ -379,6 +379,30 @@ var eventListeners = function () {
             $(textFields[i]).keydown(function () {
                 if (event.keyCode === 13) {
                     submitSettings(0);
+                }
+            });
+        }
+
+        var radioButtons = document.getElementsByClassName("mdl-radio__button");
+
+        for (var i = 0; i < radioButtons.length; i++) {
+            $(radioButtons[i]).click(function () {
+                var button = event.srcElement.id;
+
+                if (button === "studentRadio") {
+                    $(".studentOptions").css("display", "block");
+                    $(".teacherOptions").css("display", "none");
+                    $(".subjectOptions").css("display", "none");
+                }
+                else if (button === "teacherRadio") {
+                    $(".studentOptions").css("display", "none");
+                    $(".teacherOptions").css("display", "block");
+                    $(".subjectOptions").css("display", "none");
+                }
+                else if (button === "subjectRadio") {
+                    $(".studentOptions").css("display", "none");
+                    $(".teacherOptions").css("display", "none");
+                    $(".subjectOptions").css("display", "block");
                 }
             });
         }

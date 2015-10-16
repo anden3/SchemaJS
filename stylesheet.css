@@ -115,17 +115,42 @@ body {
     padding: 0 0 0 0;
 }
 
-.row.radio {
-    padding-left: 10px;
+.studentOptions {
+	padding: 0;
+    margin: 0;
+    display: block;
+}
+
+.teacherOptions {
+	padding: 0;
+    margin: 0;
+    display: none;
+}
+
+.subjectOptions {
+	padding: 0;
+    margin: 0;
+    display: none;
+}
+
+div.row.radio {
+    margin-left: 30px;
+    width: 300px;
+    padding: 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-.row.radio p {
-    margin: 0 0 0 10px;
+div.row.radio p {
+    margin: 0 0 0 -5px;
 }
 
-.radio {
-    margin: 0 30px 0 0;
+span.radio {
+    margin: 0 20px 0 0;
+    padding-right: 0;
+}
+
+label.mdl-radio {
+    margin: 0 0 0 -5px;
 }
 
 .mdl-radio__label {
