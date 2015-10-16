@@ -165,17 +165,21 @@ var progressBar = function () {
         mm = (parseInt(('0' + now.getMonth()).slice(-2)) + 1).toString(),
         yyyy = now.getFullYear(),
 
-        testTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (12 + (now.getTimezoneOffset() / 60)).toString() + ":00:00"),
-
         startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 + (now.getTimezoneOffset() / 60)).toString() + ":35:00"),
         endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 + (now.getTimezoneOffset() / 60)).toString() + ":50:00"),
         timeBetween = endTime - startTime,
-        percentComplete = (testTime - startTime) / timeBetween,
-        pixelDistance = scheduleHeight * percentComplete;
+        percentComplete = (now - startTime) / timeBetween,
+        pixelDistance = scheduleHeight * percentComplete,
 
         bar = document.getElementById("progress");
 
-    bar.style.top = headerHeight + pixelDistance;
+    if (percentComplete < 1) {
+        bar.style.display = "block";
+        bar.style.top = headerHeight + pixelDistance;
+    }
+    else {
+        bar.style.display = "none";
+    }
 }
 
 //Getting the image from the schedule generator
@@ -425,7 +429,7 @@ var eventListeners = function () {
         if (settingsVisible) {
             toggleSettings(1);
         }
-        background.style.backgroundImage = "url(" + getImage(IDType) + ")";
+        getImage();
     });
 
     //Checking if the client has a touch screen
