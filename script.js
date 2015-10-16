@@ -23,7 +23,7 @@ var header = document.getElementById("header"),
     food = {},
     primaryKey = 0,
     replaceChars = [["Ã¥", "Ã¥", "Ã¤", "Ã¶", "Ã©", "Ã¶", "Ã¤", "Ã–"], ["å", "å", "ä", "ö", "é", "ö", "ä", "Ö"]],
-    values = ["scheduleType", "IDType", "schoolID", "userID", "classID", "week"];
+    values = ["scheduleType", "IDType", "schoolID", "userID", "classID", "teacherID", "subjectID", "week"];
 
 //Function to create a cookie
 var createCookie = function (name, value, days) {
@@ -91,6 +91,22 @@ var setDefaultValues = function () {
         classID = "";
     }
 
+    if (readCookie("TEACHERID") !== null) {
+        teacherID = readCookie("TEACHERID");
+    } else if (localStorage.teacherID !== "undefined" && typeof localStorage.teacherID !== "undefined") {
+        teacherID = localStorage.teacherID;
+    } else {
+        teacherID = "";
+    }
+
+    if (readCookie("SUBJECTID") !== null) {
+        subjectID = readCookie("SUBJECTID");
+    } else if (localStorage.subjectID !== "undefined" && typeof localStorage.subjectID !== "undefined") {
+        subjectID = localStorage.subjectID;
+    } else {
+        subjectID = "";
+    }
+
     //Ensures the proper radio button is checked
     if (readCookie("IDTYPE") !== null) {
         IDType = readCookie("IDTYPE");
@@ -134,7 +150,9 @@ var displayDefaultValues = function () {
 }
 
 //Getting the image from the schedule generator
-var getImage = function (ID) {
+var getImage = function () {
+    var ID;
+
     //Getting the height of the header
     var header = document.getElementById("header"),
         headerStyle = getComputedStyle(header),
@@ -148,9 +166,45 @@ var getImage = function (ID) {
     background.style.width = width;
     background.style.height = height;
 
-    //Returns the image
-    return "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
+    if (scheduleType === "student") {
+        return setImage(schoolID, IDType, week, today, width, height);
+    }
+    else if (scheduleType === "teacher") {
+        //ID = teacherID;
+
+        $.post('get_teacher.php', {
+            teacher: teacherID
+        }, function (data) {
+            if (data !== "error") {
+                return setImage(schoolID, data, week, today, width, height);
+            }
+        });
+    }
+    else if (scheduleType === "subject") {
+        //ID = subjectID;
+
+        $.post('get_subject.php', {
+            subject: subjectID
+        }, function (data) {
+            if (data !== "error") {
+                return setImage(schoolID, data, week, today, width, height);
+            }
+        });
+    }
+
 };
+
+var setImage = function (schoolID, ID, week, today, width, height) {
+    if (typeof ID !== "undefined") {
+        //Returns the image
+        background.style.backgroundImage = "url(" + "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height + ")";
+    }
+    else {
+        setTimeout(function () {
+            setImage(schoolID, ID, week, today, width, height)
+        }, 200);
+    }
+}
 
 //Function to toggle between displaying and hiding the settings
 var toggleSettings = function (toggle) {
@@ -178,6 +232,9 @@ var submitSettings = function (direction) {
     schoolID = document.getElementById("schoolID").value;
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
+
+    teacherID = document.getElementById("teacherID").value;
+    subjectID = document.getElementById("subjectID").value;
 
     changeOptions(scheduleType + "Radio");
 
@@ -212,8 +269,6 @@ var submitSettings = function (direction) {
         var tempArray = values[i].toUpperCase();
         createCookie(tempArray, window[values[i]], 365);
     }
-
-    console.log(localStorage.scheduleType);
 
     //Getting the week from the number field
     week = parseInt(document.getElementById("week").value, 10);
@@ -272,7 +327,7 @@ var submitSettings = function (direction) {
     }
 
     //Set the background image to the schedule
-    background.style.backgroundImage = "url(" + getImage(IDType) + ")";
+    getImage();
 
     //Hide the settings window
     toggleSettings(0);
@@ -603,5 +658,5 @@ var getFoods = function () {
 setDefaultValues();
 displayDefaultValues();
 getFoods();
-background.style.backgroundImage = "url(" + getImage(IDType) + ")";
+//background.style.backgroundImage = "url(" + getImage() + ")";
 eventListeners();

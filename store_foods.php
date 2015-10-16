@@ -32,11 +32,11 @@ if ( $_POST ) {
     $key = mysqli_real_escape_string($con, $key);
 
     //Save the SQL-query as a string
-    $sql = "INSERT INTO food (Week, Day, Mat, PrimaryKey)
+    $query = "INSERT INTO food (Week, Day, Mat, PrimaryKey)
     VALUES ('$week', '$day', '$desc', '$key')";
 
     //Insert variables into the food table, and if it failed, kill the connection
-    if (!mysqli_query($con, $sql)) {
+    if (!mysqli_query($con, $query)) {
         die('Error: ' . mysqli_error($con));
     }
 
