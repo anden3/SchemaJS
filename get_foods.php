@@ -7,7 +7,7 @@ header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 $pass = rtrim(file_get_contents("sql_pass.txt"));
 
 //Connect to the SQL-database
-$con = mysqli_connect("localhost", "root", $pass, "matsedel");
+$con = mysqli_connect("mysql513.loopia.se", "98anve32@k132604", $pass, "kodlabb_se_db_6_db_7_db_2_db_13");
 
 //Set the correct charset
 mysqli_set_charset($con,"utf8mb4");
