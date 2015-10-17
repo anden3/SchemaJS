@@ -16,6 +16,7 @@ var header = document.getElementById("header"),
     foodElement = document.getElementById("food"),
     background = document.getElementById("schedule"),
     settings = document.getElementById("settings"),
+    is_touch_device = 'ontouchstart' in document.documentElement,
     days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
     settingsVisible = false,
     daysAdded = 0,
@@ -165,13 +166,20 @@ var progressBar = function () {
         mm = (parseInt(('0' + now.getMonth()).slice(-2)) + 1).toString(),
         yyyy = now.getFullYear(),
 
-        startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 + (now.getTimezoneOffset() / 60)).toString() + ":35:00"),
-        endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 + (now.getTimezoneOffset() / 60)).toString() + ":50:00"),
-        timeBetween = endTime - startTime,
-        percentComplete = (now - startTime) / timeBetween,
-        pixelDistance = scheduleHeight * percentComplete,
-
         bar = document.getElementById("progress");
+
+    if (is_touch_device) {
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":35:00"),
+            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":50:00");
+    }
+    else {
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 + (now.getTimezoneOffset() / 60)).toString() + ":35:00"),
+            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 + (now.getTimezoneOffset() / 60)).toString() + ":50:00");
+    }
+
+    var timeBetween = endTime - startTime,
+        percentComplete = (now - startTime) / timeBetween,
+        pixelDistance = scheduleHeight * percentComplete;
 
     if (percentComplete < 1) {
         bar.style.display = "block";
@@ -433,125 +441,101 @@ var eventListeners = function () {
     });
 
     //Checking if the client has a touch screen
-    var is_touch_device = 'ontouchstart' in document.documentElement;
+    var textFields = document.getElementsByClassName("mdl-textfield__input"), //Save all text field elements to an array
+        radioButtons = document.getElementsByClassName("mdl-radio__button"),
+        searchFields = ["#roomID", "#teacherID", "#subjectID"];
+
 
     //If so, check for touchstart/end events instead of click events
     if (is_touch_device) {
-        document.getElementById("settingsButton").addEventListener("touchstart", function () {
-            var touchStart = event.target;
-
-            document.getElementById("settingsButton").addEventListener("touchend", function () {
-                if (event.target === touchStart) {
-                    toggleSettings(1);
-                }
-            });
-        });
-
-        for (var i = 0; i < days.length; i++) {
-            document.getElementById(days[i]).addEventListener("touchstart", function () {
-                var touchStart = event.target,
-                    day = event.srcElement.id;
-
-                document.getElementById(day).addEventListener("touchend", function () {
-                    if (event.target === touchStart) {
-                        document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
-                    }
-                });
-            });
-        }
-
-        document.getElementById("submitSettings").addEventListener("touchstart", function () {
-            var touchStart = event.target;
-
-            document.getElementById("submitSettings").addEventListener("touchend", function () {
-                if (event.target === touchStart) {
-                    submitSettings(0);
-                }
-            });
-        });
-
-        document.getElementById("cancelSettings").addEventListener("touchstart", function () {
-            var touchStart = event.target;
-
-            document.getElementById("cancelSettings").addEventListener("touchend", function () {
-                if (event.target === touchStart) {
-                    toggleSettings(0);
-                }
-            });
-        });
-
         swipedetect(background, function (swipedir) {
             if (swipedir != "none") {
                 submitSettings(swipedir);
             }
         });
-    } else { //If the client doesn't have a touch screen, check for click events instead of touchstart/end events
+    }
 
-        //Change the view based on which navigation key was pressed
-        $(window).keydown(function () {
-            if (settingsVisible === false) {
-                if (event.keyCode === 37) {
-                    submitSettings("left");
-                } else if (event.keyCode === 38) {
-                    submitSettings("up");
-                } else if (event.keyCode === 39) {
-                    submitSettings("right");
-                } else if (event.keyCode === 40) {
-                    submitSettings("down");
-                }
+    for (var i = 0; i < searchFields.length; i++) {
+        $(searchFields[i]).keyup(function (event) {
+            if (event.target.id === "teacherID") {
+                console.log("test");
+                $.post("search_sql.php", {
+                    data: event.target.value,
+                    table: event.target.id.substring(0, event.target.id.length - 2) + "s"
+                }, function (data) {
+                    console.log(data);
+                });
             }
-        });
-
-        //Show the settings when pressing the settings button
-        $("#settingsButton").click(function () {
-            toggleSettings(1);
-        });
-
-        //Enable clicking on the days in the drop-down menu
-        for (var i = 0; i < days.length; i++) {
-            $("#" + days[i]).click(function () {
-                var day = event.srcElement.id;
-                document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
-            });
-        }
-
-        //Submit settings when pressing the submit button
-        $("#submitSettings").click(function () {
-            submitSettings(0);
-        });
-
-        //Hide the settings window when pressing the cancel button
-        $("#cancelSettings").click(function () {
-            toggleSettings(0);
-        });
-
-        //Save all text field elements to an array
-        var textFields = document.getElementsByClassName("mdl-textfield__input");
-
-        //If enter is pressed while one of the textfields are edited, submit the settings
-        for (var i = 0; i < textFields.length; i++) {
-            $(textFields[i]).keydown(function () {
-                if (event.keyCode === 13) {
-                    submitSettings(0);
-                }
-            });
-        }
-
-        var radioButtons = document.getElementsByClassName("mdl-radio__button");
-
-        for (var i = 0; i < radioButtons.length; i++) {
-            $(radioButtons[i]).click(function () {
-                changeOptions(event.srcElement.id);
-            });
-        }
-
-        //If escape is pressed while the settings window is visible, hide the settings window
-        $(window).keydown(function () {
-            if (settingsVisible && event.keyCode === 27) {
-                toggleSettings(0);
+            else {
+                $.post("search_sql.php", {
+                    data: event.target.value,
+                    table: event.target.id.substring(0, event.target.id.length - 2) + "s"
+                }, function (data) {
+                    console.log(data);
+                });
             }
         });
     }
+
+    //Change the view based on which navigation key was pressed
+    $(window).keydown(function () {
+        if (settingsVisible === false) {
+            if (event.keyCode === 37) {
+                submitSettings("left");
+            } else if (event.keyCode === 38) {
+                submitSettings("up");
+            } else if (event.keyCode === 39) {
+                submitSettings("right");
+            } else if (event.keyCode === 40) {
+                submitSettings("down");
+            }
+        }
+    });
+
+    //Show the settings when pressing the settings button
+    $("#settingsButton").click(function () {
+        toggleSettings(1);
+    });
+
+    //Enable clicking on the days in the drop-down menu
+    for (var i = 0; i < days.length; i++) {
+        $("#" + days[i]).click(function () {
+            var day = event.srcElement.id;
+            document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
+        });
+    }
+
+    //Submit settings when pressing the submit button
+    $("#submitSettings").click(function () {
+        submitSettings(0);
+    });
+
+    //Hide the settings window when pressing the cancel button
+    $("#cancelSettings").click(function () {
+        toggleSettings(0);
+    });
+
+    //If enter is pressed while one of the textfields are edited, submit the settings
+    for (var i = 0; i < textFields.length; i++) {
+        $(textFields[i]).keydown(function () {
+            if (event.keyCode === 13) {
+                submitSettings(0);
+            }
+        });
+    }
+
+    for (var i = 0; i < radioButtons.length; i++) {
+        $(radioButtons[i]).click(function () {
+            changeOptions(event.srcElement.id);
+        });
+    }
+
+    //If escape is pressed while the settings window is visible, hide the settings window
+    $(window).keydown(function () {
+        if (settingsVisible && event.keyCode === 27) {
+            toggleSettings(0);
+        }
+    });
 };
 
 //Function for detecting swipes and their direction
