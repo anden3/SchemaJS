@@ -26,7 +26,7 @@ var header = document.getElementById("header"),
     food = {},
     primaryKey = 0,
     replaceChars = [["Ã¥", "Ã¥", "Ã¤", "Ã¶", "Ã©", "Ã¶", "Ã¤", "Ã–"], ["å", "å", "ä", "ö", "é", "ö", "ä", "Ö"]],
-    values = ["scheduleType", "IDType", "schoolID", "userID", "classID", "roomID", "teacherID", "subjectID", "week"];
+    values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "userID", "classID", "roomID", "subjectID", "week"];
 
 //Function to create a cookie
 var createCookie = function (name, value, days) {
@@ -102,6 +102,14 @@ var setDefaultValues = function () {
         roomID = "";
     }
 
+    if (readCookie("TEACHERNAME") !== null) {
+        teacherName = readCookie("TEACHERNAME");
+    } else if (localStorage.teacherName !== "undefined" && typeof localStorage.teacherName !== "undefined") {
+        teacherName = localStorage.teacherName;
+    } else {
+        teacherName = "";
+    }
+
     if (readCookie("TEACHERID") !== null) {
         teacherID = readCookie("TEACHERID");
     } else if (localStorage.teacherID !== "undefined" && typeof localStorage.teacherID !== "undefined") {
@@ -153,11 +161,13 @@ var setDefaultValues = function () {
 
 //Update the values of the settings with the stored values
 var displayDefaultValues = function () {
-    for (var i = 2; i < values.length; i++) {
+    for (var i = 4; i < values.length; i++) {
         document.getElementById(values[i]).value = window[values[i]];
     }
     document.getElementById("dayPicker").innerHTML = "<p>" + days[Math.log2(today)] + "</p>";
     document.getElementById(scheduleType + "Radio").checked = true;
+    document.getElementById("teacherID").value = teacherName;
+    document.getElementById("teacherID").setAttribute("name", teacherName.substring(teacherName.indexOf("(" + 1), teacherName.length - 1));
 }
 
 var progressBar = function () {
@@ -297,7 +307,10 @@ var submitSettings = function (direction) {
     classID = document.getElementById("classID").value;
 
     roomID = document.getElementById("roomID").value;
-    teacherID = document.getElementById("teacherID").value;
+
+    teacherName = document.getElementById("teacherID").value;
+    teacherID = teacherName.substring(teacherName.indexOf("(") + 1, teacherName.length - 1);
+
     subjectID = document.getElementById("subjectID").value;
 
     changeOptions(scheduleType + "Radio");
@@ -328,7 +341,7 @@ var submitSettings = function (direction) {
     }
 
     //Saving the variables to cookies
-    for (var i = 0; i < values.length - 1; i++) {
+    for (var i = 2; i < values.length - 1; i++) {
         localStorage.setItem(values[i], window[values[i]]);
         var tempArray = values[i].toUpperCase();
         createCookie(tempArray, window[values[i]], 365);
@@ -577,11 +590,13 @@ var eventListeners = function () {
     $('body').on("click", ".searchResult", function () {
         var id = event.target.id,
             fieldID = scheduleType + "ID",
-            field = document.getElementById(fieldID);
+            field = document.getElementById(fieldID),
+            name = event.target.innerHTML;
 
         id = id.substring(id.indexOf("(") + 1, id.length - 1);
-        field.value = event.target.innerHTML;
-    })
+        field.value = name;
+        field.setAttribute("name", id);
+    });
 };
 
 //Function for detecting swipes and their direction
