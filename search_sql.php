@@ -26,7 +26,7 @@ if ( $_POST ) {
 
     //Save the SQL-query as a string
     if ($table == "teachers") {
-        $query = "SELECT FullName FROM $table
+        $query = "SELECT FullName, Name FROM $table
         WHERE '$search' = SUBSTRING(UPPER(FirstName), 1, LENGTH('$search'))
         OR '$search' = SUBSTRING(UPPER(LastName), 1, LENGTH('$search'))";
     }
@@ -36,18 +36,16 @@ if ( $_POST ) {
         WHERE '$search' = SUBSTRING(UPPER(Name), 1, LENGTH('$search'))";
     }
 
-    echo $query;
-
     //Run the query, and save the results in an object
     if ($result = mysqli_query($con, $query)) {
         if ($table == "teachers") {
             while ($object = mysqli_fetch_object($result)) {
-                printf("%s ",$object->FullName);
+                printf("%s (%s),",$object->FullName, $object->Name);
             }
         }
         else {
             while ($object = mysqli_fetch_object($result)) {
-                printf("%s ",$object->Name);
+                printf("%s,",$object->Name);
             }
         }
 

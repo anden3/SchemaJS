@@ -430,6 +430,34 @@ var changeOptions = function (button) {
     scheduleType = button.substring(0, button.length - 5);
 }
 
+var parseSearchResults = function (data, id) {
+    var searchResult = data.trim(),
+        searchArray = searchResult.split(","),
+        target;
+
+    for (var i = 0; i < searchArray.length; i++) {
+        if (searchArray[i] === "") {
+            searchArray.splice(i, 1);
+        }
+    }
+
+    if ($("." + id + "Search").length >= 1) {
+        $("." + id + "Search").remove();
+    }
+    $("." + id).append($('<ul></ul>').addClass("searchResults " + id + "Search"));
+
+    if (searchArray.length < 5) {
+        target = searchArray.length;
+    }
+    else {
+        target = 5;
+    }
+
+    for (var i = 0; i < target; i++) {
+        $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
+    }
+}
+
 //Adding event listeners for different events
 var eventListeners = function () {
     //If the window is resized, update the background image, and show the settings again if they were visible
@@ -458,12 +486,16 @@ var eventListeners = function () {
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
             if (event.target.id === "teacherID") {
-                console.log("test");
                 $.post("search_sql.php", {
                     data: event.target.value,
                     table: event.target.id.substring(0, event.target.id.length - 2) + "s"
                 }, function (data) {
-                    console.log(data);
+                    var id = event.target.id;
+
+                    id = id.substring(0, id.length - 2);
+                    id = id + "Options";
+
+                    parseSearchResults(data, id);
                 });
             }
             else {
@@ -471,7 +503,12 @@ var eventListeners = function () {
                     data: event.target.value,
                     table: event.target.id.substring(0, event.target.id.length - 2) + "s"
                 }, function (data) {
-                    console.log(data);
+                    var id = event.target.id;
+
+                    id = id.substring(0, id.length - 2);
+                    id = id + "Options";
+
+                    parseSearchResults(data, id);
                 });
             }
         });
@@ -536,6 +573,15 @@ var eventListeners = function () {
             toggleSettings(0);
         }
     });
+
+    $('body').on("click", ".searchResult", function () {
+        var id = event.target.id,
+            fieldID = scheduleType + "ID",
+            field = document.getElementById(fieldID);
+
+        id = id.substring(id.indexOf("(") + 1, id.length - 1);
+        field.value = event.target.innerHTML;
+    })
 };
 
 //Function for detecting swipes and their direction

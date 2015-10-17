@@ -156,6 +156,25 @@ label.mdl-radio {
     padding: 0 0 0 10px;
 }
 
+.searchResults {
+    position: inherit;
+    width: auto;
+    padding: 0 15px 0 15px;
+    text-align: left;
+    border-radius: 0;
+    z-index: 15;
+    list-style-type: none;
+}
+
+.searchResults * {
+    font-size: 16px;
+    text-transform: none;
+    margin-left: 15px;
+    width: 100%;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    z-index: 15;
+}
+
 #dayPicker {
     width: 100%;
     padding-right: 15px;
