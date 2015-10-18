@@ -341,7 +341,7 @@ var submitSettings = function (direction) {
     }
 
     //Saving the variables to cookies
-    for (var i = 2; i < values.length - 1; i++) {
+    for (var i = 0; i < values.length - 1; i++) {
         localStorage.setItem(values[i], window[values[i]]);
         var tempArray = values[i].toUpperCase();
         createCookie(tempArray, window[values[i]], 365);
@@ -451,6 +451,12 @@ var parseSearchResults = function (data, id) {
     for (var i = 0; i < searchArray.length; i++) {
         if (searchArray[i] === "") {
             searchArray.splice(i, 1);
+        }
+    }
+
+    for (var i = 0; i < searchArray.length; i++) {
+        for (var c = 0; c < replaceChars[0].length; c++) {
+            searchArray[i] = searchArray[i].replace(replaceChars[0][c], replaceChars[1][c]);
         }
     }
 
