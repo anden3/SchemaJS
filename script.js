@@ -25,8 +25,32 @@ var header = document.getElementById("header"),
     foodDescs = [],
     food = {},
     primaryKey = 0,
-    replaceChars = [["Ã¥", "Ã¥", "Ã¤", "Ã¶", "Ã©", "Ã¶", "Ã¤", "Ã–"], ["å", "å", "ä", "ö", "é", "ö", "ä", "Ö"]],
+    replaceChars = {
+        å: "Ã¥",
+        ä: "Ã¤",
+        ö: "Ã¶",
+        Å: "Ã…",
+        Ö: "Ã–",
+        é: "Ã©",
+        è: "Ã¨",
+        ë: "Ã«",
+        ü: "Ã¼"
+    }
     values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "userID", "classID", "roomID", "subjectID", "week"];
+
+var fixChars = function (array) {
+    var count = 2;
+
+    while (count > 0) {
+        for (var i = 0; i < array.length; i++) {
+            for (c in replaceChars) {
+                array[i] = array[i].replace(replaceChars[c], c);
+            }
+        }
+        count--;
+    }
+    return array;
+}
 
 //Function to create a cookie
 var createCookie = function (name, value, days) {
@@ -356,24 +380,24 @@ var submitSettings = function (direction) {
         dayIndex = days.indexOf(dayPicked);
 
     //Changing the days/weeks viewed based on what key is pressed or what direction a swipe is in
-    if (direction === "left") {
+    if (direction === 37) {
         dayIndex -= 1;
 
         if (dayIndex < 0) {
             week -= 1;
             dayIndex = 5;
         }
-    } else if (direction === "up") {
+    } else if (direction === 38) {
         week += 1;
         dayIndex += daysAdded;
-    } else if (direction === "right") {
+    } else if (direction === 39) {
         dayIndex += 1;
 
         if (dayIndex > 5) {
             week += 1;
             dayIndex = 0;
         }
-    } else if (direction === "down") {
+    } else if (direction === 40) {
         week -= 1;
         dayIndex += daysAdded;
     }
@@ -405,7 +429,6 @@ var submitSettings = function (direction) {
 
     //Set the background image to the schedule
     getImage();
-
     progressBar();
 
     //Hide the settings window
@@ -413,40 +436,21 @@ var submitSettings = function (direction) {
 };
 
 var changeOptions = function (button) {
-    var checkedOption = "";
+    var id = "." + button.substring(0, button.length - 5) + "Options";
 
-    if (button === "studentRadio") {
-        $(".studentOptions").css("display", "block");
-        $(".roomOptions").css("display", "none");
-        $(".teacherOptions").css("display", "none");
-        $(".subjectOptions").css("display", "none");
-    }
-    else if (button === "roomRadio") {
-        $(".studentOptions").css("display", "none");
-        $(".roomOptions").css("display", "block");
-        $(".teacherOptions").css("display", "none");
-        $(".subjectOptions").css("display", "none");
-    }
-    else if (button === "teacherRadio") {
-        $(".studentOptions").css("display", "none");
-        $(".roomOptions").css("display", "none");
-        $(".teacherOptions").css("display", "block");
-        $(".subjectOptions").css("display", "none");
-    }
-    else if (button === "subjectRadio") {
-        $(".studentOptions").css("display", "none");
-        $(".roomOptions").css("display", "none");
-        $(".teacherOptions").css("display", "none");
-        $(".subjectOptions").css("display", "block");
-    }
+    $(".studentOptions").css("display", "none");
+    $(".roomOptions").css("display", "none");
+    $(".teacherOptions").css("display", "none");
+    $(".subjectOptions").css("display", "none");
+
+    $(id).css("display", "block");
 
     scheduleType = button.substring(0, button.length - 5);
 }
 
 var parseSearchResults = function (data, id) {
     var searchResult = data.trim(),
-        searchArray = searchResult.split(","),
-        target;
+        searchArray = searchResult.split(",");
 
     for (var i = 0; i < searchArray.length; i++) {
         if (searchArray[i] === "") {
@@ -454,25 +458,15 @@ var parseSearchResults = function (data, id) {
         }
     }
 
-    for (var i = 0; i < searchArray.length; i++) {
-        for (var c = 0; c < replaceChars[0].length; c++) {
-            searchArray[i] = searchArray[i].replace(replaceChars[0][c], replaceChars[1][c]);
-        }
-    }
+    fixChars(searchArray);
 
     if ($("." + id + "Search").length >= 1) {
         $("." + id + "Search").remove();
     }
+
     $("." + id).append($('<ul></ul>').addClass("searchResults " + id + "Search"));
 
-    if (searchArray.length < 5) {
-        target = searchArray.length;
-    }
-    else {
-        target = 5;
-    }
-
-    for (var i = 0; i < target; i++) {
+    for (var i = 0; i < searchArray.length; i++) {
         $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
     }
 }
@@ -536,6 +530,10 @@ var eventListeners = function () {
     //Change the view based on which navigation key was pressed
     $(window).keydown(function () {
         if (settingsVisible === false) {
+            if (Math.abs(event.keyCode - 38.5) <= 1.5) {
+                submitSettings(event.keyCode);
+            }
+            /*
             if (event.keyCode === 37) {
                 submitSettings("left");
             } else if (event.keyCode === 38) {
@@ -545,6 +543,7 @@ var eventListeners = function () {
             } else if (event.keyCode === 40) {
                 submitSettings("down");
             }
+            */
         }
     });
 
@@ -709,12 +708,11 @@ var getFoods = function () {
     //Gets the food data from the get_foods.php file
     $.get("get_foods.php", function (data) {
         foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
-        for (var i = 0; i < foodData.length; i++) {
-            //Fixes broken characters
-            for (var c = 0; c < replaceChars[0].length; c++) {
-                foodData[i] = foodData[i].replace(replaceChars[0][c], replaceChars[1][c]);
-            }
 
+        //Fixes broken characters
+        fixChars(foodData);
+
+        for (var i = 0; i < foodData.length; i++) {
             //Splits the line into an array of words
             var foodDataSplit = foodData[i].split(" ");
 

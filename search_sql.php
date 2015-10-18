@@ -1,5 +1,7 @@
 <?php
 
+ini_set("default_charset", 'UTF-8');
+
 //Gets pass from ignored text file
 $pass = rtrim(file_get_contents("sql_pass.txt"));
 
@@ -20,20 +22,32 @@ if ( $_POST ) {
 
     //Save the sent variables to local variables
     $search = $_POST['data'];
-    $search = strtoupper($search);
+    $search = mb_strtoupper($search, "UTF-8");
+
+    $offset = 0;
+    $specialChars = array("Å", "Ä", "Ö", "É", "È", "Ë", "Ü");
+
+    for ($c = 0, $length = count($specialChars); $c < $length; ++$c) {
+        if (strpos($search, $specialChars[$c]) !== FALSE) {
+            $offset += 1;
+        }
+    }
 
     $table = $_POST['table'];
 
     //Save the SQL-query as a string
     if ($table == "teachers") {
         $query = "SELECT FullName, Name FROM $table
-        WHERE '$search' = SUBSTRING(UPPER(FirstName), 1, LENGTH('$search'))
-        OR '$search' = SUBSTRING(UPPER(LastName), 1, LENGTH('$search'))";
+        WHERE '$search' = SUBSTRING(UPPER(FirstName), 1, LENGTH('$search') - '$offset')
+        OR '$search' = SUBSTRING(UPPER(LastName), 1, LENGTH('$search') - '$offset')
+        OR '$search' = SUBSTRING(UPPER(FullName), 1, LENGTH('$search') - '$offset')
+        LIMIT 5";
     }
 
     else {
         $query = "SELECT Name FROM $table
-        WHERE '$search' = SUBSTRING(UPPER(Name), 1, LENGTH('$search'))";
+        WHERE '$search' = SUBSTRING(UPPER(Name), 1, LENGTH('$search') - '$offset')
+        LIMIT 5";
     }
 
     //Run the query, and save the results in an object

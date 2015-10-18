@@ -1,5 +1,7 @@
 <?php
 
+ini_set("default_charset", 'utf-8');
+
 //Set proper header to reduce broken characters
 header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 
