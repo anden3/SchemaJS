@@ -498,32 +498,17 @@ var eventListeners = function () {
 
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
-            if (event.target.id === "teacherID") {
-                $.post("search_sql.php", {
-                    data: event.target.value,
-                    table: event.target.id.substring(0, event.target.id.length - 2) + "s"
-                }, function (data) {
-                    var id = event.target.id;
+            $.post("search_sql.php", {
+                data: event.target.value,
+                table: event.target.id.substring(0, event.target.id.length - 2) + "s"
+            }, function (data) {
+                var id = event.target.id;
 
-                    id = id.substring(0, id.length - 2);
-                    id = id + "Options";
+                id = id.substring(0, id.length - 2);
+                id = id + "Options";
 
-                    parseSearchResults(data, id);
-                });
-            }
-            else {
-                $.post("search_sql.php", {
-                    data: event.target.value,
-                    table: event.target.id.substring(0, event.target.id.length - 2) + "s"
-                }, function (data) {
-                    var id = event.target.id;
-
-                    id = id.substring(0, id.length - 2);
-                    id = id + "Options";
-
-                    parseSearchResults(data, id);
-                });
-            }
+                parseSearchResults(data, id);
+            });
         });
     }
 
@@ -533,17 +518,6 @@ var eventListeners = function () {
             if (Math.abs(event.keyCode - 38.5) <= 1.5) {
                 submitSettings(event.keyCode);
             }
-            /*
-            if (event.keyCode === 37) {
-                submitSettings("left");
-            } else if (event.keyCode === 38) {
-                submitSettings("up");
-            } else if (event.keyCode === 39) {
-                submitSettings("right");
-            } else if (event.keyCode === 40) {
-                submitSettings("down");
-            }
-            */
         }
     });
 
@@ -555,19 +529,25 @@ var eventListeners = function () {
     //Enable clicking on the days in the drop-down menu
     for (var i = 0; i < days.length; i++) {
         $("#" + days[i]).click(function () {
-            var day = event.srcElement.id;
-            document.getElementById("dayPicker").innerHTML = "<p>" + day + "</p>";
+            document.getElementById("dayPicker").innerHTML = "<p>" + event.srcElement.id + "</p>";
         });
     }
 
-    //Submit settings when pressing the submit button
-    $("#submitSettings").click(function () {
-        submitSettings(0);
-    });
+    for (var i = 0; i < radioButtons.length; i++) {
+        $(radioButtons[i]).click(function () {
+            changeOptions(event.srcElement.id);
+        });
+    }
 
-    //Hide the settings window when pressing the cancel button
-    $("#cancelSettings").click(function () {
-        toggleSettings(0);
+    $('body').on("click", ".searchResult", function () {
+        var id = event.target.id,
+            fieldID = scheduleType + "ID",
+            field = document.getElementById(fieldID),
+            name = event.target.innerHTML;
+
+        id = id.substring(id.indexOf("(") + 1, id.length - 1);
+        field.value = name;
+        field.setAttribute("name", id);
     });
 
     //If enter is pressed while one of the textfields are edited, submit the settings
@@ -579,11 +559,6 @@ var eventListeners = function () {
         });
     }
 
-    for (var i = 0; i < radioButtons.length; i++) {
-        $(radioButtons[i]).click(function () {
-            changeOptions(event.srcElement.id);
-        });
-    }
 
     //If escape is pressed while the settings window is visible, hide the settings window
     $(window).keydown(function () {
@@ -592,15 +567,14 @@ var eventListeners = function () {
         }
     });
 
-    $('body').on("click", ".searchResult", function () {
-        var id = event.target.id,
-            fieldID = scheduleType + "ID",
-            field = document.getElementById(fieldID),
-            name = event.target.innerHTML;
+    //Submit settings when pressing the submit button
+    $("#submitSettings").click(function () {
+        submitSettings(0);
+    });
 
-        id = id.substring(id.indexOf("(") + 1, id.length - 1);
-        field.value = name;
-        field.setAttribute("name", id);
+    //Hide the settings window when pressing the cancel button
+    $("#cancelSettings").click(function () {
+        toggleSettings(0);
     });
 };
 
@@ -724,7 +698,7 @@ var getFoods = function () {
             //Removes the first word in the array
             foodDataSplit.shift();
 
-            //Adds the first word to the foodDays object
+            //Adds the new first word to the foodDays object
             if (foodDataSplit[0] !== "") {
                 foodDays[foodDataSplit[0]] = true;
             }
