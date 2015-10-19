@@ -103,6 +103,17 @@ body {
     font-size: 24px;
 }
 
+.about {
+    display: none;
+    position: absolute;
+    width: auto;
+    height: auto;
+    padding-right: 10px;
+    z-index: 10;
+    background-color: white;
+    box-shadow: 0 12px 15px 0 rgba(0, 0, 0, 0.24);
+}
+
 .row {
     margin-bottom: 10px;
     margin-left: 0px;

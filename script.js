@@ -14,6 +14,7 @@ var header = document.getElementById("header"),
     foodElement = document.getElementById("food"),
     background = document.getElementById("schedule"),
     settings = document.getElementById("settings"),
+    about = document.getElementById("about"),
 
     headerHeight,
     scheduleHeight,
@@ -21,7 +22,7 @@ var header = document.getElementById("header"),
     is_touch_device = 'ontouchstart' in document.documentElement,
     screenOrientation = ($(window).width() > $(window).height())? 90 : 0;
 
-    settingsVisible = false,
+    popupVisible = false,
 
     replaceChars = {
         å: "Ã¥",
@@ -213,7 +214,10 @@ var progressBar = function () {
         endHour = 16,
         endMin = 50,
 
-        bar = document.getElementById("progress");
+        bar = document.getElementById("progress"),
+
+        ua = navigator.userAgent.toLowerCase(),
+        isAndroid = ua.indexOf("android") > -1;
 
     if (scheduleType === "student") {
         startHour = 8;
@@ -234,18 +238,18 @@ var progressBar = function () {
         endMin = 10;
     }
 
-    if (is_touch_device) {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":" + startMin + ":00"),
-            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":" + endMin + ":00");
+    if (isAndroid) {
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + startHour.toString() + ":" + startMin + ":00"),
+            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + endHour.toString() + ":" + endMin + ":00");
     }
     else {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour + (now.getTimezoneOffset() / 60)).toString() + ":" + startMin + ":00");
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour + (now.getTimezoneOffset() / 60)).toString() + ":" + startMin + ":00"),
             endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour + (now.getTimezoneOffset() / 60)).toString() + ":" + endMin + ":00");
     }
 
     var timeBetween = endTime - startTime,
-        percentComplete = (now - startTime) / timeBetween,
-        pixelDistance = (scheduleHeight - 70) * percentComplete,
+        percentComplete = (testTime - startTime) / timeBetween,
+        pixelDistance = (scheduleHeight - (window.innerHeight / 9.5)) * percentComplete,
         correction = window.innerHeight * 0.09;
 
     if (percentComplete < 1) {
@@ -307,22 +311,29 @@ var setImage = function (ID, width, height) {
 }
 
 //Function to toggle between displaying and hiding the settings
-var toggleSettings = function (toggle) {
+var togglePopup = function (toggle, div) {
+    if (div.id === "settings") {
+        about.style.display = "none";
+    }
+    else if (div.id === "about") {
+        settings.style.display = "none";
+    }
+
     if (toggle === 1) {
-        settingsVisible = true;
-        settings.style.display = "block";
+        popupVisible = true;
+        div.style.display = "block";
 
         //Getting the width of the settings window
-        settingsStyle = getComputedStyle(settings);
-        settingsWidth = settingsStyle.getPropertyValue("width");
+        divStyle = getComputedStyle(div);
+        divWidth = divStyle.getPropertyValue("width");
 
         //Setting the settings window to the middle of the screen
-        settings.style.left = (window.innerWidth - settingsWidth.substring(0, settingsWidth.length - 2)) / 2;
-        settings.style.top = (Math.round((headerHeight / window.innerHeight) * 100) + 1.8) + "vh";
+        div.style.left = (window.innerWidth - divWidth.substring(0, divWidth.length - 2)) / 2;
+        div.style.top = (Math.round((headerHeight / window.innerHeight) * 100) + 1.8) + "vh";
         background.style.webkitFilter = "blur(2px)"; //Blurring the background
     } else if (toggle === 0) {
-        settingsVisible = false;
-        settings.style.display = "none";
+        popupVisible = false;
+        div.style.display = "none";
         background.style.webkitFilter = "blur(0)";
     }
 };
@@ -436,7 +447,7 @@ var submitSettings = function (direction) {
     progressBar();
 
     //Hide the settings window
-    toggleSettings(0);
+    togglePopup(0, settings);
 };
 
 var changeOptions = function (button) {
@@ -486,15 +497,15 @@ var eventListeners = function () {
             if (newOrientation !== oldOrientation) {
                 screenOrientation = newOrientation;
 
-                if (settingsVisible) {
-                    toggleSettings(1);
+                if (popupVisible) {
+                    togglePopup(1, settings);
                 }
                 getImage();
             }
         }
         else {
-            if (settingsVisible) {
-                toggleSettings(1);
+            if (popupVisible) {
+                togglePopup(1, settings);
             }
             getImage();
         }
@@ -533,7 +544,7 @@ var eventListeners = function () {
 
     //Change the view based on which navigation key was pressed
     $(window).keydown(function () {
-        if (settingsVisible === false) {
+        if (popupVisible === false) {
             if (Math.abs(event.keyCode - 38.5) <= 1.5) {
                 submitSettings(event.keyCode);
             }
@@ -542,8 +553,12 @@ var eventListeners = function () {
 
     //Show the settings when pressing the settings button
     $("#settingsButton").click(function () {
-        toggleSettings(1);
+        togglePopup(1, settings);
     });
+
+    $("#aboutButton").click(function () {
+        togglePopup(1, about);
+    })
 
     //Enable clicking on the days in the drop-down menu
     for (var i = 0; i < days.length; i++) {
@@ -581,8 +596,9 @@ var eventListeners = function () {
 
     //If escape is pressed while the settings window is visible, hide the settings window
     $(window).keydown(function () {
-        if (settingsVisible && event.keyCode === 27) {
-            toggleSettings(0);
+        if (popupVisible && event.keyCode === 27) {
+            togglePopup(0, settings);
+            togglePopup(0, about);
         }
     });
 
@@ -593,7 +609,7 @@ var eventListeners = function () {
 
     //Hide the settings window when pressing the cancel button
     $("#cancelSettings").click(function () {
-        toggleSettings(0);
+        togglePopup(0, settings);
     });
 };
 
