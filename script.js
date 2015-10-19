@@ -543,7 +543,7 @@ var eventListeners = function () {
     }
 
     //Change the view based on which navigation key was pressed
-    $(window).keydown(function () {
+    $(window).keydown(function (event) {
         if (popupVisible === false) {
             if (Math.abs(event.keyCode - 38.5) <= 1.5) {
                 submitSettings(event.keyCode);
@@ -562,18 +562,18 @@ var eventListeners = function () {
 
     //Enable clicking on the days in the drop-down menu
     for (var i = 0; i < days.length; i++) {
-        $("#" + days[i]).click(function () {
-            document.getElementById("dayPicker").innerHTML = "<p>" + event.srcElement.id + "</p>";
+        $("#" + days[i]).click(function (event) {
+            document.getElementById("dayPicker").innerHTML = "<p>" + event.target.id + "</p>";
         });
     }
 
     for (var i = 0; i < radioButtons.length - 2; i++) {
-        $(radioButtons[i]).click(function () {
-            changeOptions(event.srcElement.id);
+        $(radioButtons[i]).click(function (event) {
+            changeOptions(event.target.id);
         });
     }
 
-    $('body').on("click", ".searchResult", function () {
+    $('body').on("click", ".searchResult", function (event) {
         var id = event.target.id,
             fieldID = scheduleType + "ID",
             field = document.getElementById(fieldID),
@@ -586,7 +586,7 @@ var eventListeners = function () {
 
     //If enter is pressed while one of the textfields are edited, submit the settings
     for (var i = 0; i < textFields.length; i++) {
-        $(textFields[i]).keydown(function () {
+        $(textFields[i]).keydown(function (event) {
             if (event.keyCode === 13) {
                 submitSettings(0);
             }
@@ -595,7 +595,7 @@ var eventListeners = function () {
 
 
     //If escape is pressed while the settings window is visible, hide the settings window
-    $(window).keydown(function () {
+    $(window).keydown(function (event) {
         if (popupVisible && event.keyCode === 27) {
             togglePopup(0, settings);
             togglePopup(0, about);
