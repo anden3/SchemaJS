@@ -19,6 +19,7 @@ var header = document.getElementById("header"),
     scheduleHeight,
 
     is_touch_device = 'ontouchstart' in document.documentElement,
+    screenOrientation = ($(window).width() > $(window).height())? 90 : 0;
 
     settingsVisible = false,
 
@@ -278,59 +279,29 @@ var getImage = function () {
     background.style.height = height;
 
     if (scheduleType === "student") {
-        return setImage(schoolID, IDType, week, today, width, height);
+        return setImage(IDType, width, height);
     }
     else if (scheduleType === "room") {
         ID = roomID;
-        /*
-        $.post('get_item.php', {
-            item: roomID,
-            type: "room"
-        }, function (data) {
-            if (data !== "error") {
-                return setImage(schoolID, data, week, today, width, height);
-            }
-        });
-        */
     }
     else if (scheduleType === "teacher") {
         ID = teacherID;
-        /*
-        $.post('get_item.php', {
-            item: teacherID,
-            type: "teacher"
-        }, function (data) {
-            if (data !== "error") {
-                return setImage(schoolID, data, week, today, width, height);
-            }
-        });
-        */
     }
     else if (scheduleType === "subject") {
         ID = subjectID;
-        /*
-        $.post('get_item.php', {
-            item: subjectID,
-            type: "subject"
-        }, function (data) {
-            if (data !== "error") {
-                return setImage(schoolID, data, week, today, width, height);
-            }
-        });
-        */
     }
-    setImage(schoolID, ID, week, today, width, height);
+    setImage(ID, width, height);
 
 };
 
-var setImage = function (schoolID, ID, week, today, width, height) {
+var setImage = function (ID, width, height) {
     if (typeof ID !== "undefined") {
         //Returns the image
         background.style.backgroundImage = "url(" + "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height + ")";
     }
     else {
         setTimeout(function () {
-            setImage(schoolID, ID, week, today, width, height)
+            setImage(ID, width, height)
         }, 200);
     }
 }
@@ -347,6 +318,7 @@ var toggleSettings = function (toggle) {
 
         //Setting the settings window to the middle of the screen
         settings.style.left = (window.innerWidth - settingsWidth.substring(0, settingsWidth.length - 2)) / 2;
+        settings.style.top = (Math.round((headerHeight / window.innerHeight) * 100) + 1.8) + "vh";
         background.style.webkitFilter = "blur(2px)"; //Blurring the background
     } else if (toggle === 0) {
         settingsVisible = false;
@@ -507,10 +479,25 @@ var parseSearchResults = function (data, id) {
 var eventListeners = function () {
     //If the window is resized, update the background image, and show the settings again if they were visible
     window.addEventListener("resize", function () {
-        if (settingsVisible) {
-            toggleSettings(1);
+        if (is_touch_device) {
+            var oldOrientation = screenOrientation,
+                newOrientation = ($(window).width() > $(window).height())? 90 : 0;
+
+            if (newOrientation !== oldOrientation) {
+                screenOrientation = newOrientation;
+
+                if (settingsVisible) {
+                    toggleSettings(1);
+                }
+                getImage();
+            }
         }
-        getImage();
+        else {
+            if (settingsVisible) {
+                toggleSettings(1);
+            }
+            getImage();
+        }
     });
 
     //Checking if the client has a touch screen
@@ -565,7 +552,7 @@ var eventListeners = function () {
         });
     }
 
-    for (var i = 0; i < radioButtons.length; i++) {
+    for (var i = 0; i < radioButtons.length - 2; i++) {
         $(radioButtons[i]).click(function () {
             changeOptions(event.srcElement.id);
         });
@@ -741,11 +728,6 @@ var getFoods = function () {
             //Join all the unremoved words together as a string again and remove the leading and trailing character
             var foodDesc = foodDataSplit.join(" ");
             foodDesc = foodDesc.substring(1, foodDesc.length - 1);
-
-            //If the description isn't a tab character, then push the description to the foodDescs array
-            /*if (foodDesc != "      ") {
-                foodDescs.push(foodDesc);
-            }*/
 
             //Push description to the foodDescs array
             foodDescs.push(foodDesc);
