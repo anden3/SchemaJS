@@ -248,7 +248,7 @@ var progressBar = function () {
     }
 
     var timeBetween = endTime - startTime,
-        percentComplete = (testTime - startTime) / timeBetween,
+        percentComplete = (now - startTime) / timeBetween,
         pixelDistance = (scheduleHeight - (window.innerHeight / 9.5)) * percentComplete,
         correction = window.innerHeight * 0.09;
 
