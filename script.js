@@ -11,20 +11,17 @@ Date.prototype.getWeek = function () {
 
 //Adding default variables and values
 var header = document.getElementById("header"),
-    headerHeight,
-    scheduleHeight,
     foodElement = document.getElementById("food"),
     background = document.getElementById("schedule"),
     settings = document.getElementById("settings"),
+
+    headerHeight,
+    scheduleHeight,
+
     is_touch_device = 'ontouchstart' in document.documentElement,
-    days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
+
     settingsVisible = false,
-    daysAdded = 0,
-    foodWeeks = {},
-    foodDays = {},
-    foodDescs = [],
-    food = {},
-    primaryKey = 0,
+
     replaceChars = {
         å: "Ã¥",
         ä: "Ã¤",
@@ -35,8 +32,17 @@ var header = document.getElementById("header"),
         è: "Ã¨",
         ë: "Ã«",
         ü: "Ã¼"
-    }
-    values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "userID", "classID", "roomID", "subjectID", "week"];
+    },
+    days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
+    values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "userID", "classID", "roomID", "subjectID", "week"],
+
+    daysAdded = 0,
+    primaryKey = 0,
+
+    foodWeeks = {},
+    foodDays = {},
+    foodDescs = [],
+    food = {};
 
 var fixChars = function (array) {
     var count = 2;
@@ -188,6 +194,7 @@ var displayDefaultValues = function () {
     for (var i = 4; i < values.length; i++) {
         document.getElementById(values[i]).value = window[values[i]];
     }
+
     document.getElementById("dayPicker").innerHTML = "<p>" + days[Math.log2(today)] + "</p>";
     document.getElementById(scheduleType + "Radio").checked = true;
     document.getElementById("teacherID").value = teacherName;
