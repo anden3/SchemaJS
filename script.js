@@ -200,24 +200,49 @@ var progressBar = function () {
         mm = (parseInt(('0' + now.getMonth()).slice(-2)) + 1).toString(),
         yyyy = now.getFullYear(),
 
+        startHour = 8,
+        startMin = 25,
+        endHour = 16,
+        endMin = 50,
+
         bar = document.getElementById("progress");
 
+    if (scheduleType === "student") {
+        startHour = 8;
+        startMin = 25;
+        endHour = 16;
+        endMin = 50;
+    }
+    else if (scheduleType === "teacher") {
+        startHour = 8;
+        startMin = 15;
+        endHour = 17;
+        endMin = "00";
+    }
+    else if (scheduleType === "room") {
+        startHour = 8;
+        startMin = 25;
+        endHour = 16;
+        endMin = 10;
+    }
+
     if (is_touch_device) {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":35:00"),
-            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":50:00");
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":" + startMin + ":00"),
+            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour /*+ (now.getTimezoneOffset() / 60)*/).toString() + ":" + endMin + ":00");
     }
     else {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (7 + (now.getTimezoneOffset() / 60)).toString() + ":35:00"),
-            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (16 + (now.getTimezoneOffset() / 60)).toString() + ":50:00");
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour + (now.getTimezoneOffset() / 60)).toString() + ":" + startMin + ":00");
+            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour + (now.getTimezoneOffset() / 60)).toString() + ":" + endMin + ":00");
     }
 
     var timeBetween = endTime - startTime,
         percentComplete = (now - startTime) / timeBetween,
-        pixelDistance = scheduleHeight * percentComplete;
+        pixelDistance = (scheduleHeight - 70) * percentComplete,
+        correction = window.innerHeight * 0.09;
 
     if (percentComplete < 1) {
         bar.style.display = "block";
-        bar.style.top = headerHeight + pixelDistance;
+        bar.style.top = headerHeight + correction + pixelDistance;
     }
     else {
         bar.style.display = "none";
@@ -380,24 +405,24 @@ var submitSettings = function (direction) {
         dayIndex = days.indexOf(dayPicked);
 
     //Changing the days/weeks viewed based on what key is pressed or what direction a swipe is in
-    if (direction === 37) {
+    if (direction === 37 || direction === "left") {
         dayIndex -= 1;
 
         if (dayIndex < 0) {
             week -= 1;
             dayIndex = 5;
         }
-    } else if (direction === 38) {
+    } else if (direction === 38 || direction === "up") {
         week += 1;
         dayIndex += daysAdded;
-    } else if (direction === 39) {
+    } else if (direction === 39 || direction === "right") {
         dayIndex += 1;
 
         if (dayIndex > 5) {
             week += 1;
             dayIndex = 0;
         }
-    } else if (direction === 40) {
+    } else if (direction === 40 || direction === "down") {
         week -= 1;
         dayIndex += daysAdded;
     }
