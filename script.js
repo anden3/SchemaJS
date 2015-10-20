@@ -216,6 +216,8 @@ var progressBar = function () {
         endHour,
         endMin,
 
+        offset = 0,
+
         bar = document.getElementById("progress"),
 
         ua = navigator.userAgent.toLowerCase(),
@@ -240,14 +242,15 @@ var progressBar = function () {
         endMin = 10;
     }
 
-    if (isAndroid) {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + startHour.toString() + ":" + startMin + ":00"),
-            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + endHour.toString() + ":" + endMin + ":00");
+    var testDate = new Date(yyyy + "-" + mm + "-" + dd + "T12:00:00"),
+        testHour = parseInt(testDate.toTimeString().substring(0, 2));
+
+    if (testHour !== 12) {
+        offset = 12 - testHour;
     }
-    else {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour/* + (now.getTimezoneOffset() / 60)*/).toString() + ":" + startMin + ":00"),
-            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour/* + (now.getTimezoneOffset() / 60)*/).toString() + ":" + endMin + ":00");
-    }
+
+    var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour + offset).toString() + ":" + startMin + ":00"),
+        endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour + offset).toString() + ":" + endMin + ":00");
 
     var timeBetween = endTime - startTime,
         percentComplete = (now - startTime) / timeBetween,
