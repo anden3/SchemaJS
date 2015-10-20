@@ -18,9 +18,10 @@ var header = document.getElementById("header"),
 
     headerHeight,
     scheduleHeight,
+    currentDay,
 
     is_touch_device = 'ontouchstart' in document.documentElement,
-    screenOrientation = ($(window).width() > $(window).height())? 90 : 0;
+    screenOrientation = ($(window).width() > $(window).height())? 90 : 0,
 
     popupVisible = false,
 
@@ -35,6 +36,7 @@ var header = document.getElementById("header"),
         ë: "Ã«",
         ü: "Ã¼"
     },
+
     days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
     values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "userID", "classID", "roomID", "subjectID", "week"],
 
@@ -209,10 +211,10 @@ var progressBar = function () {
         mm = (parseInt(('0' + now.getMonth()).slice(-2)) + 1).toString(),
         yyyy = now.getFullYear(),
 
-        startHour = 8,
-        startMin = 25,
-        endHour = 16,
-        endMin = 50,
+        startHour,
+        startMin,
+        endHour,
+        endMin,
 
         bar = document.getElementById("progress"),
 
@@ -243,8 +245,8 @@ var progressBar = function () {
             endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + endHour.toString() + ":" + endMin + ":00");
     }
     else {
-        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour + (now.getTimezoneOffset() / 60)).toString() + ":" + startMin + ":00"),
-            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour + (now.getTimezoneOffset() / 60)).toString() + ":" + endMin + ":00");
+        var startTime = new Date(yyyy + "-" + mm + "-" + dd + "T0" + (startHour/* + (now.getTimezoneOffset() / 60)*/).toString() + ":" + startMin + ":00"),
+            endTime = new Date(yyyy + "-" + mm + "-" + dd + "T" + (endHour/* + (now.getTimezoneOffset() / 60)*/).toString() + ":" + endMin + ":00");
     }
 
     var timeBetween = endTime - startTime,
@@ -252,9 +254,9 @@ var progressBar = function () {
         pixelDistance = (scheduleHeight - (window.innerHeight / 9.5)) * percentComplete,
         correction = window.innerHeight * 0.09;
 
-    if (percentComplete < 1) {
+    if (percentComplete < 1 && percentComplete > 0 && days[now.getActualDay()] === currentDay) {
         bar.style.display = "block";
-        bar.style.top = headerHeight + correction + pixelDistance;
+        bar.style.top = headerHeight + correction + pixelDistance + "px";
     }
     else {
         bar.style.display = "none";
@@ -432,6 +434,8 @@ var submitSettings = function (direction) {
     document.getElementById("dayPicker").innerHTML = "<p>" + days[dayIndex] + "</p>";
     document.getElementById("week").value = week;
     week = week.toString();
+
+    currentDay = days[dayIndex];
 
     //If the chosen view is a day, and the chosen week has food descriptions, then show the food bar
     if (dayIndex < 5 && foodWeeks.indexOf(week) != -1) {
