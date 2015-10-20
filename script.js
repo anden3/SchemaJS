@@ -197,7 +197,7 @@ var displayDefaultValues = function () {
         document.getElementById(values[i]).value = window[values[i]];
     }
 
-    document.getElementById("dayPicker").innerHTML = "<p>" + days[Math.log2(today)] + "</p>";
+    document.getElementById("dayPicker").innerHTML = "<p>" + days[(Math.log(today) / Math.log(2))] + "</p>";
     document.getElementById(scheduleType + "Radio").checked = true;
     document.getElementById("teacherID").value = teacherName;
     document.getElementById("teacherID").setAttribute("name", teacherName.substring(teacherName.indexOf("(" + 1), teacherName.length - 1));
@@ -274,13 +274,13 @@ var getImage = function () {
 
     //Setting the dimensions of the image to the width of the window, and the height to the height of the window - the height of the header
     var width = window.innerWidth,
-        height = window.innerHeight - headerHeight;
+        height = $(window).height() - headerHeight;
 
     scheduleHeight = height;
 
     //Setting the background div to the image size
-    background.style.width = width;
-    background.style.height = height;
+    background.style.width = width + "px";
+    background.style.height = height + "px";
 
     if (scheduleType === "student") {
         return setImage(IDType, width, height);
@@ -301,11 +301,13 @@ var getImage = function () {
 var setImage = function (ID, width, height) {
     if (typeof ID !== "undefined") {
         //Returns the image
-        background.style.backgroundImage = "url(" + "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height + ")";
+        var url = "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
+
+        background.style.backgroundImage = 'url(' + url + ')';
     }
     else {
         setTimeout(function () {
-            setImage(ID, width, height)
+            setImage(ID, width, height);
         }, 200);
     }
 }
@@ -324,14 +326,16 @@ var togglePopup = function (toggle, div) {
         div.style.display = "block";
 
         //Getting the width of the settings window
-        divStyle = getComputedStyle(div);
-        divWidth = divStyle.getPropertyValue("width");
+        var divStyle = getComputedStyle(div);
+        var divWidth = divStyle.getPropertyValue("width");
 
         //Setting the settings window to the middle of the screen
-        div.style.left = (window.innerWidth - divWidth.substring(0, divWidth.length - 2)) / 2;
+        div.style.left = (window.innerWidth - divWidth.substring(0, divWidth.length - 2)) / 2 + "px";
         div.style.top = (Math.round((headerHeight / window.innerHeight) * 100) + 1.8) + "vh";
         background.style.webkitFilter = "blur(2px)"; //Blurring the background
-    } else if (toggle === 0) {
+    }
+
+    else if (toggle === 0) {
         popupVisible = false;
         div.style.display = "none";
         background.style.webkitFilter = "blur(0)";
