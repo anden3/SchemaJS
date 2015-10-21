@@ -218,10 +218,7 @@ var progressBar = function () {
 
         offset = 0,
 
-        bar = document.getElementById("progress"),
-
-        ua = navigator.userAgent.toLowerCase(),
-        isAndroid = ua.indexOf("android") > -1;
+        bar = document.getElementById("progress");
 
     if (scheduleType === "student") {
         startHour = 8;
