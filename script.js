@@ -105,68 +105,29 @@ var readCookie = function (name) {
 
 //Updating the values with the ones stored in cookies or localstorage, as well as adding the current week and day
 var setDefaultValues = function () {
-    if (readCookie("SCHOOLID") !== null) {
-        schoolID = readCookie("SCHOOLID");
-    } else if (localStorage.schoolID !== "undefined" && typeof localStorage.schoolID !== "undefined") {
-        schoolID = localStorage.schoolID;
-    } else {
-        schoolID = "29540";
-    }
+    var cookies = ["schoolID", "scheduleType", "userID", "classID", "roomID", "teacherName", "teacherID", "subjectID"];
 
-    if (readCookie("SCHEDULETYPE") !== null) {
-        scheduleType = readCookie("SCHEDULETYPE");
-    } else if (localStorage.scheduleType !== "undefined" && typeof localStorage.scheduleType !== "undefined") {
-        scheduleType = localStorage.scheduleType;
-    } else {
-        scheduleType = "student";
-    }
+    for (var i = 0; i < cookies.length; i++) {
+        var value = cookies[i],
+            upper = value.toUpperCase();
 
-    if (readCookie("USERID") !== null) {
-        userID = readCookie("USERID");
-    } else if (localStorage.userID !== "undefined" && typeof localStorage.userID !== "undefined") {
-        userID = localStorage.userID;
-    } else {
-        userID = "";
-    }
-
-    if (readCookie("CLASSID") !== null) {
-        classID = readCookie("CLASSID");
-    } else if (localStorage.classID !== "undefined" && typeof localStorage.classID !== "undefined") {
-        classID = localStorage.classID;
-    } else {
-        classID = "";
-    }
-
-    if (readCookie("ROOMID") !== null) {
-        roomID = readCookie("ROOMID");
-    } else if (localStorage.roomID !== "undefined" && typeof localStorage.roomID !== "undefined") {
-        roomID = localStorage.roomID;
-    } else {
-        roomID = "";
-    }
-
-    if (readCookie("TEACHERNAME") !== null) {
-        teacherName = readCookie("TEACHERNAME");
-    } else if (localStorage.teacherName !== "undefined" && typeof localStorage.teacherName !== "undefined") {
-        teacherName = localStorage.teacherName;
-    } else {
-        teacherName = "";
-    }
-
-    if (readCookie("TEACHERID") !== null) {
-        teacherID = readCookie("TEACHERID");
-    } else if (localStorage.teacherID !== "undefined" && typeof localStorage.teacherID !== "undefined") {
-        teacherID = localStorage.teacherID;
-    } else {
-        teacherID = "";
-    }
-
-    if (readCookie("SUBJECTID") !== null) {
-        subjectID = readCookie("SUBJECTID");
-    } else if (localStorage.subjectID !== "undefined" && typeof localStorage.subjectID !== "undefined") {
-        subjectID = localStorage.subjectID;
-    } else {
-        subjectID = "";
+        if (readCookie(upper) !== null) {
+            window[value] = readCookie(upper);
+        }
+        else if (localStorage.getItem(value) !== null && typeof localStorage.getItem(value) !== "undefined") {
+            window[value] = localStorage.getItem(value);
+        }
+        else {
+            if (value !== "schoolID" && value !== "scheduleType") {
+                window[value] = "";
+            }
+            else if (value === "schoolID") {
+                window[value] = "29540";
+            }
+            else if (value === "scheduleType") {
+                window[value] = "student";
+            }
+        }
     }
 
     //Ensures the proper radio button is checked
@@ -177,7 +138,7 @@ var setDefaultValues = function () {
         } else {
             document.getElementById("classRadio").checked = true;
         }
-    } else if (localStorage.IDType !== "undefined" && typeof localStorage.IDType !== "undefined") {
+    } else if (localStorage.IDType !== null && typeof localStorage.IDType !== "undefined") {
         IDType = localStorage.IDType;
         if (IDType.length >= 10) {
             document.getElementById("userRadio").checked = true;
