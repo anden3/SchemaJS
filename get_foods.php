@@ -19,8 +19,19 @@ if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
+if ($_POST) {
+    $db = $_POST['db'];
+
+    $testQuery = "SHOW TABLES LIKE 'food_$db'";
+    $testResult = mysqli_query($con, $testQuery);
+
+    if (mysqli_num_rows($testResult) < 1) {
+        echo "no_table";
+    }
+}
+
 //Save the SQL-query as a string
-$query = "SELECT * FROM food";
+$query = "SELECT * FROM food_$db";
 
 //Run the query, and save the results in an object
 if ($result = mysqli_query($con, $query)) {

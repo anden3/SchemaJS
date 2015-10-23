@@ -1,10 +1,12 @@
 <?php
 
+ini_set("default_charset", 'utf-8');
+
 //Gets pass from ignored text file
 $pass = rtrim(file_get_contents("sql_pass.txt"));
 
 //If the file receives a POST request
-if ( $_POST ) {
+if ($_POST) {
     //Set proper header to reduce broken characters
     header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 
@@ -24,6 +26,7 @@ if ( $_POST ) {
     $day = $_POST['day'];
     $desc = $_POST['desc'];
     $key = $_POST['key'];
+    $db = $_POST['db'];
 
     //Escape the variables to stop SQL-injection attack
     $week = mysqli_real_escape_string($con, $week);
@@ -32,7 +35,7 @@ if ( $_POST ) {
     $key = mysqli_real_escape_string($con, $key);
 
     //Save the SQL-query as a string
-    $query = "INSERT INTO food (Week, Day, Mat, PrimaryKey)
+    $query = "INSERT INTO food_$db (Week, Day, Mat, PrimaryKey)
     VALUES ('$week', '$day', '$desc', '$key')";
 
     //Insert variables into the food table, and if it failed, kill the connection

@@ -674,7 +674,9 @@ var parseRSS = function () {
     primaryKey = (weeksStored * 5); //Changing the primary key based on weeks stored, to allow new weeks to be added after the old ones
 
     //Getting the data from the proxy_file.php file
-    $.get("proxy_file.php", function (data) {
+    $.post("proxy_file.php", {
+        db: schoolID
+    }, function (data) {
         $(data).find("item").each(function () { //Looping for every item element in the data
             var el = $(this); //Setting el to the found element
 
@@ -711,7 +713,8 @@ var parseRSS = function () {
                 week: foodWeek,
                 day: foodDay,
                 desc: foodDesc,
-                key: primaryKey
+                key: primaryKey,
+                db: schoolID
             });
 
             //Increase the value of the primary key with 1
@@ -723,7 +726,13 @@ var parseRSS = function () {
 //Function to get the foods from the SQL-database
 var getFoods = function () {
     //Gets the food data from the get_foods.php file
-    $.get("get_foods.php", function (data) {
+    $.post("get_foods.php", {
+        db: schoolID
+    }, function (data) {
+        if (data === "no_table") {
+            parseRSS();
+        }
+
         foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
 
         //Fixes broken characters
