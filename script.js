@@ -30,6 +30,7 @@ var header = document.getElementById("header"),
         ä: "Ã¤",
         ö: "Ã¶",
         Å: "Ã…",
+        Ä: "Ã„",
         Ö: "Ã–",
         é: "Ã©",
         è: "Ã¨",
@@ -48,18 +49,26 @@ var header = document.getElementById("header"),
     foodDescs = [],
     food = {};
 
-var fixChars = function (array) {
-    var count = 2;
+var fixChars = function (object) {
+    var count = 2,
+        item = object;
 
     while (count > 0) {
-        for (var i = 0; i < array.length; i++) {
+        if (typeof item === "object") {
+            for (var i = 0; i < item.length; i++) {
+                for (c in replaceChars) {
+                    item[i] = item[i].replace(replaceChars[c], c);
+                }
+            }
+        }
+        else if (typeof item === "string") {
             for (c in replaceChars) {
-                array[i] = array[i].replace(replaceChars[c], c);
+                item = item.replace(replaceChars[c], c);
             }
         }
         count--;
     }
-    return array;
+    return item;
 }
 
 //Function to create a cookie
@@ -687,11 +696,15 @@ var parseRSS = function () {
                 foodDay = titleItems[0];
 
             //Saving the description of the food to a variable
-            var foodDescFull = el.find("description").text();
+            var foodDescFull = el[0].children[2].childNodes[0].data;
 
-            //If the description contains a line break, then remove the part before the line break
-            if (foodDescFull.indexOf("<br/>") !== -1) {
-                foodDescFull = foodDescFull.substring(foodDescFull.indexOf("<br/>") + 5, foodDescFull.length);
+            //If the description contains a line break, then remove the part after the line break
+            if (foodDescFull.indexOf("<br") !== -1) {
+                foodDescFull = foodDescFull.substring(0, foodDescFull.indexOf("<br"));
+            }
+
+            if (foodDescFull.indexOf("[CDATA[") !== -1) {
+                foodDescFull = foodDescFull.replace("[CDATA[", "");
             }
 
             //Removing spaces between eventual parentheses in the description
@@ -705,8 +718,15 @@ var parseRSS = function () {
                 foodDescFull = foodDescFull.replace("/ ", "/");
             }
 
+            if (foodDescFull.indexOf("]]") !== -1) {
+                foodDescFull = foodDescFull.replace("]]", "");
+            }
+
             //Trimming away whitespace from the description
             var foodDesc = foodDescFull.trim();
+
+            foodDay = fixChars(foodDay);
+            foodDesc = fixChars(foodDesc);
 
             //Sending the variables to the store_foods.php file
             $.post('store_foods.php', {
@@ -729,18 +749,20 @@ var getFoods = function () {
     $.post("get_foods.php", {
         db: schoolID
     }, function (data) {
-        if (data === "no_table") {
+        if (data === "no_table" || data === "") {
             parseRSS();
         }
 
         foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
 
         //Fixes broken characters
-        fixChars(foodData);
+        foodData = fixChars(foodData);
 
         for (var i = 0; i < foodData.length; i++) {
             //Splits the line into an array of words
             var foodDataSplit = foodData[i].split(" ");
+
+            foodDataSplit = fixChars(foodDataSplit);
 
             //Adds the first word to the foodWeeks object
             if (foodDataSplit[0] !== "") {
