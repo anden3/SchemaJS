@@ -22,29 +22,7 @@ if (mysqli_connect_errno()) {
 $stmt = mysqli_prepare($con, "SELECT Name FROM schools WHERE ID = ?");
 
 if ($_POST) {
-    $db = $_POST['db'];
-
-    $testQuery = "SHOW TABLES LIKE 'food_$db'";
-    $testResult = mysqli_query($con, $testQuery);
-
-    if (mysqli_num_rows($testResult) < 1) {
-        $createQuery = "CREATE TABLE food_$db (
-        Week INT(11) NOT NULL,
-        Day TINYTEXT NOT NULL,
-        Mat TINYTEXT,
-        PrimaryKey INT(255) NOT NULL PRIMARY KEY
-        );";
-
-        mysqli_query($con, $createQuery);
-    }
-
-    mysqli_stmt_bind_param($stmt, "i", $db);
-    mysqli_stmt_execute($stmt);
-    mysqli_stmt_bind_result($stmt, $Name);
-
-    while (mysqli_stmt_fetch($stmt)) {
-        $school = sprintf("%s\n", $Name);
-    }
+    $school = $_POST['school'];
 
     $school = mb_strtolower($school, "UTF-8");
 

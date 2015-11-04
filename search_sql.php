@@ -27,6 +27,7 @@ if ( $_POST ) {
     $offset = 0;
     $specialChars = array("Å", "Ä", "Ö", "É", "È", "Ë", "Ü");
 
+    //Fix for special characters appearing as two characters
     for ($c = 0, $length = count($specialChars); $c < $length; ++$c) {
         if (strpos($search, $specialChars[$c]) !== FALSE) {
             $offset += 1;
@@ -35,18 +36,29 @@ if ( $_POST ) {
 
     $table = $_POST['table'];
 
+    $school = $_POST['school'];
+
     //Save the SQL-query as a string
     if ($table == "teachers") {
-        $stmt = mysqli_prepare($con, "SELECT FullName, Name FROM $table WHERE ? = SUBSTRING(UPPER(FirstName), 1, LENGTH(?) - ?) OR ? = SUBSTRING(UPPER(LastName), 1, LENGTH(?) - ?) OR ? = SUBSTRING(UPPER(FullName), 1, LENGTH(?) - ?) LIMIT 5");
+        $stmt = mysqli_prepare($con, "SELECT FullName, Name FROM $table WHERE School = ? AND (? = SUBSTRING(UPPER(FirstName), 1, LENGTH(?) - ?) OR ? = SUBSTRING(UPPER(LastName), 1, LENGTH(?) - ?) OR ? = SUBSTRING(UPPER(FullName), 1, LENGTH(?) - ?)) LIMIT 5");
 
-        mysqli_stmt_bind_param($stmt, "ssississi", $search, $search, $offset, $search, $search, $offset, $search, $search, $offset);
+        mysqli_stmt_bind_param($stmt, "sssississi", $school, $search, $search, $offset, $search, $search, $offset, $search, $search, $offset);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_bind_result($stmt, $FullName, $Name);
     }
 
-    else {
-        $stmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE ? = SUBSTRING(UPPER(Name), 1, LENGTH(?) - ?) LIMIT 5");
+    else if ($table == "schools") {
+        $stmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM $table WHERE ? = SUBSTRING(UPPER(Name), 1, LENGTH(?) - ?) LIMIT 5");
+
         mysqli_stmt_bind_param($stmt, "ssi", $search, $search, $offset);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $Name, $ID, $Code);
+    }
+
+    else {
+        $stmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (? = SUBSTRING(UPPER(Name), 1, LENGTH(?) - ?)) LIMIT 5");
+
+        mysqli_stmt_bind_param($stmt, "sssi", $school, $search, $search, $offset);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_bind_result($stmt, $Name);
     }
@@ -57,6 +69,11 @@ if ( $_POST ) {
             printf("%s (%s),", $FullName, $Name);
         }
         mysqli_stmt_close($stmt);
+    }
+    else if ($table == "schools") {
+        while (mysqli_stmt_fetch($stmt)) {
+            printf("%s,%s,", $Name, $ID);
+        }
     }
     else {
         while (mysqli_stmt_fetch($stmt)) {

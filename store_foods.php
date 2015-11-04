@@ -19,20 +19,18 @@ if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-$stmt = mysqli_prepare($con, "INSERT INTO food_? (Week, Day, Mat, PrimaryKey) VALUES (?, ?, ?, ?)");
+$stmt = mysqli_prepare($con, "INSERT INTO food (School, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?)");
 
 //If the file receives a POST request
 if ($_POST) {
     //Save the sent variables to local variables
+    $school = $_POST['school'];
     $week = $_POST['week'];
     $day = $_POST['day'];
     $desc = $_POST['desc'];
-    $key = $_POST['key'];
-    $db = $_POST['db'];
+    $id = uniqid();
 
-    $stmt = mysqli_prepare($con, "INSERT INTO food_$db (Week, Day, Mat, PrimaryKey) VALUES (?, ?, ?, ?)");
-
-    mysqli_stmt_bind_param($stmt, "issi", $week, $day, $desc, $key);
+    mysqli_stmt_bind_param($stmt, "sisss", $school, $week, $day, $desc, $id);
     mysqli_stmt_execute($stmt);
 
     echo mysqli_error($con);

@@ -9,6 +9,13 @@
     <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
     <link rel="icon" type="image/x-icon" href="favicon.png" />
 
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#3F51B5">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#3F51B5">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="#3F51B5">
+
     <title>SchemaJS</title>
 
     <!--Importing jQuery and Google Material Design libraries-->
@@ -64,15 +71,16 @@
                     </div>
                 </form>
             </div>
-            <div class="row">
-                <p>Skol-ID: </p>
-                <form action="#">
-                    <div class="mdl-textfield mdl-js-textfield">
-                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="schoolID" />
-                        <label class="mdl-textfield__label" for="schoolID">29540</label>
-                        <span class="mdl-textfield__error">Måste vara ett nummer</span>
-                    </div>
-                </form>
+            <div class="schoolOptions option">
+                <div class="row">
+                    <p>Skol-ID: </p>
+                    <form action="#">
+                        <div class="mdl-textfield mdl-js-textfield">
+                            <input class="mdl-textfield__input" type="text" id="schoolID" />
+                            <label class="mdl-textfield__label" for="schoolID">29540</label>
+                        </div>
+                    </form>
+                </div>
             </div>
             <div class="row radio">
                 <p>Typ av schema: </p>

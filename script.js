@@ -39,7 +39,7 @@ var header = document.getElementById("header"),
     },
 
     days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
-    values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "userID", "classID", "roomID", "subjectID", "week"],
+    values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "schoolName", "userID", "classID", "roomID", "subjectID", "week"],
 
     daysAdded = 0,
     primaryKey = 0,
@@ -105,16 +105,16 @@ var readCookie = function (name) {
 
 //Updating the values with the ones stored in cookies or localstorage, as well as adding the current week and day
 var setDefaultValues = function () {
-    var cookies = ["schoolID", "scheduleType", "userID", "classID", "roomID", "teacherName", "teacherID", "subjectID"];
+    var cookies = ["schoolID", "schoolName", "scheduleType", "userID", "classID", "roomID", "teacherName", "teacherID", "subjectID"];
 
     for (var i = 0; i < cookies.length; i++) {
         var value = cookies[i],
             upper = value.toUpperCase();
 
-        if (readCookie(upper) !== null) {
+        if (readCookie(upper) !== null && readCookie(upper) !== "") {
             window[value] = readCookie(upper);
         }
-        else if (localStorage.getItem(value) !== null && typeof localStorage.getItem(value) !== "undefined") {
+        else if (localStorage.getItem(value) !== null && localStorage.getItem(value) !== "" && typeof localStorage.getItem(value) !== "undefined") {
             window[value] = localStorage.getItem(value);
         }
         else {
@@ -165,7 +165,7 @@ var setDefaultValues = function () {
 
 //Update the values of the settings with the stored values
 var displayDefaultValues = function () {
-    for (var i = 4; i < values.length; i++) {
+    for (var i = 6; i < values.length; i++) {
         document.getElementById(values[i]).value = window[values[i]];
     }
 
@@ -173,6 +173,8 @@ var displayDefaultValues = function () {
     document.getElementById(scheduleType + "Radio").checked = true;
     document.getElementById("teacherID").value = teacherName;
     document.getElementById("teacherID").setAttribute("name", teacherName.substring(teacherName.indexOf("(" + 1), teacherName.length - 1));
+    document.getElementById("schoolID").value = schoolName;
+    document.getElementById("schoolID").setAttribute("name", schoolID);
 }
 
 var progressBar = function () {
@@ -305,19 +307,20 @@ var togglePopup = function (toggle, div) {
         div.style.left = (window.innerWidth - divWidth.substring(0, divWidth.length - 2)) / 2 + "px";
         div.style.top = (Math.round((headerHeight / window.innerHeight) * 100) + 1.8) + "vh";
         background.style.webkitFilter = "blur(2px)"; //Blurring the background
+        document.getElementById("progress").style.webkitFilter = "blur(2px)";
     }
 
     else if (toggle === 0) {
         popupVisible = false;
         div.style.display = "none";
         background.style.webkitFilter = "blur(0)";
+        document.getElementById("progress").style.webkitFilter = "blur(0)";
     }
 };
 
 //What happens when the Verkställ button is pressed, or the navigation keys/swipes are pressed/swiped
 var submitSettings = function (direction) {
     //Saving text fields to variables
-    schoolID = document.getElementById("schoolID").value;
     userID = document.getElementById("userID").value;
     classID = document.getElementById("classID").value;
 
@@ -329,6 +332,11 @@ var submitSettings = function (direction) {
     subjectID = document.getElementById("subjectID").value;
 
     changeOptions(scheduleType + "Radio");
+
+    if (typeof document.getElementById("schoolID").name !== "undefined") {
+        schoolID = document.getElementById("schoolID").name;
+        schoolName = document.getElementById("schoolID").value;
+    }
 
     if (scheduleType === "student") {
         //Checks if the year in the userID is written using four numbers, and if so, decreases it to two numbers
@@ -443,9 +451,17 @@ var changeOptions = function (button) {
 
 var parseSearchResults = function (data, id) {
     var searchResult = data.trim(),
-        searchArray = searchResult.split(",");
+        searchArray = searchResult.split(","),
+        tempSchoolID;
 
     for (var i = 0; i < searchArray.length; i++) {
+        if (id === "schoolOptions") {
+            if (!isNaN(searchArray[i])) {
+                tempSchoolID = searchArray[i];
+                searchArray.splice(i, 1);
+            }
+        }
+
         if (searchArray[i] === "") {
             searchArray.splice(i, 1);
         }
@@ -460,7 +476,12 @@ var parseSearchResults = function (data, id) {
     $("." + id).append($('<ul></ul>').addClass("searchResults " + id + "Search"));
 
     for (var i = 0; i < searchArray.length; i++) {
-        $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
+        if (typeof tempSchoolID !== "undefined") {
+            $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]).attr("name", tempSchoolID));
+        }
+        else {
+            $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
+        }
     }
 }
 
@@ -492,7 +513,7 @@ var eventListeners = function () {
     //Checking if the client has a touch screen
     var textFields = document.getElementsByClassName("mdl-textfield__input"), //Save all text field elements to an array
         radioButtons = document.getElementsByClassName("mdl-radio__button"),
-        searchFields = ["#roomID", "#teacherID", "#subjectID"];
+        searchFields = ["#schoolID", "#roomID", "#teacherID", "#subjectID"];
 
 
     //If so, check for touchstart/end events instead of click events
@@ -508,7 +529,8 @@ var eventListeners = function () {
         $(searchFields[i]).keyup(function (event) {
             $.post("search_sql.php", {
                 data: event.target.value,
-                table: event.target.id.substring(0, event.target.id.length - 2) + "s"
+                table: event.target.id.substring(0, event.target.id.length - 2) + "s",
+                school: schoolID
             }, function (data) {
                 var id = event.target.id;
 
@@ -526,6 +548,13 @@ var eventListeners = function () {
             if (Math.abs(event.keyCode - 38.5) <= 1.5) {
                 submitSettings(event.keyCode);
             }
+        }
+    });
+
+    $(window).click(function (event) {
+        if (popupVisible && event.target.id === "schedule") {
+            togglePopup(0, settings);
+            togglePopup(0, about);
         }
     });
 
@@ -553,13 +582,23 @@ var eventListeners = function () {
 
     $('body').on("click", ".searchResult", function (event) {
         var id = event.target.id,
-            fieldID = scheduleType + "ID",
-            field = document.getElementById(fieldID),
             name = event.target.innerHTML;
 
-        id = id.substring(id.indexOf("(") + 1, id.length - 1);
-        field.value = name;
-        field.setAttribute("name", id);
+        if (typeof event.target.attributes.name.value !== "undefined" && !isNaN(event.target.attributes.name.value)) {
+            var field = document.getElementById("schoolID"),
+                id = event.target.attributes.name.value;
+
+            field.value = name;
+            field.setAttribute("name", id);
+        }
+        else {
+            var fieldID = scheduleType + "ID",
+                field = document.getElementById(fieldID);
+
+            id = id.substring(id.indexOf("(") + 1, id.length - 1);
+            field.value = name;
+            field.setAttribute("name", id);
+        }
     });
 
     //If enter is pressed while one of the textfields are edited, submit the settings
@@ -638,14 +677,9 @@ function swipedetect(el, callback) {
 
 //Update the SQL-database with the data from the matsedel RSS-feed, should only be run once a week
 var parseRSS = function () {
-    var currentWeek = (new Date()).getWeek(),
-        weeksStored = currentWeek - 34; //Checking how many weeks has passed since the first week that's been stored
-
-    primaryKey = (weeksStored * 5); //Changing the primary key based on weeks stored, to allow new weeks to be added after the old ones
-
     //Getting the data from the proxy_file.php file
     $.post("proxy_file.php", {
-        db: schoolID
+        school: schoolName
     }, function (data) {
         $(data).find("item").each(function () { //Looping for every item element in the data
             var el = $(this); //Setting el to the found element
@@ -694,12 +728,8 @@ var parseRSS = function () {
                 week: foodWeek,
                 day: foodDay,
                 desc: foodDesc,
-                key: primaryKey,
-                db: schoolID
+                school: schoolID
             });
-
-            //Increase the value of the primary key with 1
-            primaryKey += 1;
         });
     });
 };
@@ -708,10 +738,10 @@ var parseRSS = function () {
 var getFoods = function () {
     //Gets the food data from the get_foods.php file
     $.post("get_foods.php", {
-        db: schoolID
+        school: schoolID
     }, function (data) {
-        if (data === "no_table" || data === "") {
-            parseRSS();
+        if (data === "") {
+            submitSettings();
         }
 
         foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array

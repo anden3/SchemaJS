@@ -20,33 +20,26 @@ if (mysqli_connect_errno()) {
 }
 
 if ($_POST) {
-    $db = $_POST['db'];
+    $school = $_POST['school'];
 
-    $testQuery = "SHOW TABLES LIKE 'food_$db'";
-    $testResult = mysqli_query($con, $testQuery);
+    //Save the SQL-query as a string
+    $query = "SELECT * FROM food WHERE School = $school";
 
-    if (mysqli_num_rows($testResult) < 1) {
-        echo "no_table";
-    }
-}
+    //Run the query, and save the results in an object
+    if ($result = mysqli_query($con, $query)) {
+        while ($object = mysqli_fetch_object($result)) {
+            printf("%s %s (%s)\n",$object->Week,$object->Day,$object->Mat);
+        }
 
-//Save the SQL-query as a string
-$query = "SELECT * FROM food_$db";
-
-//Run the query, and save the results in an object
-if ($result = mysqli_query($con, $query)) {
-    while ($object = mysqli_fetch_object($result)) {
-        printf("%s %s (%s)\n",$object->Week,$object->Day,$object->Mat);
+        //Frees the memory used for saving the result
+        mysqli_free_result($result);
     }
 
-    //Frees the memory used for saving the result
-    mysqli_free_result($result);
+    //Echo the object
+    echo $object;
 }
 
 //Close the connection
 mysqli_close($con);
-
-//Echo the object
-echo $object;
 
 ?>
