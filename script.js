@@ -416,7 +416,7 @@ var submitSettings = function (direction) {
     currentDay = days[dayIndex];
 
     //If the chosen view is a day, and the chosen week has food descriptions, then show the food bar
-    if (dayIndex < 5 && foodWeeks.indexOf(week) != -1) {
+    if (!jQuery.isEmptyObject(foodWeeks) && dayIndex < 5 && foodWeeks.indexOf(week) != -1) {
         header.style.height = "12vh";
         foodElement.style.display = "block";
         background.style.marginTop = "12vh";
@@ -513,7 +513,7 @@ var eventListeners = function () {
     //Checking if the client has a touch screen
     var textFields = document.getElementsByClassName("mdl-textfield__input"), //Save all text field elements to an array
         radioButtons = document.getElementsByClassName("mdl-radio__button"),
-        searchFields = ["#schoolID", "#roomID", "#teacherID", "#subjectID"];
+        searchFields = ["#schoolID", "#classID", "#roomID", "#teacherID", "#subjectID"];
 
 
     //If so, check for touchstart/end events instead of click events
@@ -527,9 +527,17 @@ var eventListeners = function () {
 
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
+            var table;
+            if (event.target.id.substring(0, event.target.id.length - 2) === "class") {
+                table = "classes";
+            }
+            else {
+                table = event.target.id.substring(0, event.target.id.length - 2) + "s";
+            }
+
             $.post("search_sql.php", {
                 data: event.target.value,
-                table: event.target.id.substring(0, event.target.id.length - 2) + "s",
+                table: table,
                 school: schoolID
             }, function (data) {
                 var id = event.target.id;
@@ -584,16 +592,27 @@ var eventListeners = function () {
         var id = event.target.id,
             name = event.target.innerHTML;
 
-        if (typeof event.target.attributes.name.value !== "undefined" && !isNaN(event.target.attributes.name.value)) {
+        if (typeof event.target.attributes.name !== "undefined" && typeof event.target.attributes.name.value !== "undefined" && event.target.parentElement.classList[1] === "schoolOptionsSearch") {
             var field = document.getElementById("schoolID"),
                 id = event.target.attributes.name.value;
 
             field.value = name;
             field.setAttribute("name", id);
         }
+
+        else if (event.target.parentElement.classList[1] === "classOptionsSearch") {
+            var field = document.getElementById("classID");
+
+            id = id.substring(id.indexOf("(") + 1, id.length - 1);
+            field.value = name;
+            field.setAttribute("name", id);
+        }
+
         else {
             var fieldID = scheduleType + "ID",
                 field = document.getElementById(fieldID);
+
+            console.log(fieldID);
 
             id = id.substring(id.indexOf("(") + 1, id.length - 1);
             field.value = name;
@@ -740,65 +759,64 @@ var getFoods = function () {
     $.post("get_foods.php", {
         school: schoolID
     }, function (data) {
-        if (data === "") {
-            submitSettings();
-        }
+        if (data !== "") {
+            foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
 
-        foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
+            //Fixes broken characters
+            foodData = fixChars(foodData);
 
-        //Fixes broken characters
-        foodData = fixChars(foodData);
+            for (var i = 0; i < foodData.length; i++) {
+                //Splits the line into an array of words
+                var foodDataSplit = foodData[i].split(" ");
 
-        for (var i = 0; i < foodData.length; i++) {
-            //Splits the line into an array of words
-            var foodDataSplit = foodData[i].split(" ");
+                foodDataSplit = fixChars(foodDataSplit);
 
-            foodDataSplit = fixChars(foodDataSplit);
+                //Adds the first word to the foodWeeks object
+                if (foodDataSplit[0] !== "") {
+                    foodWeeks[foodDataSplit[0]] = true;
+                }
 
-            //Adds the first word to the foodWeeks object
-            if (foodDataSplit[0] !== "") {
-                foodWeeks[foodDataSplit[0]] = true;
+                //Removes the first word in the array
+                foodDataSplit.shift();
+
+                //Adds the new first word to the foodDays object
+                if (foodDataSplit[0] !== "") {
+                    foodDays[foodDataSplit[0]] = true;
+                }
+
+                //Removes the first word in the array
+                foodDataSplit.shift();
+
+                //Join all the unremoved words together as a string again and remove the leading and trailing character
+                var foodDesc = foodDataSplit.join(" ");
+                foodDesc = foodDesc.substring(1, foodDesc.length - 1);
+
+                //Push description to the foodDescs array
+                foodDescs.push(foodDesc);
             }
 
-            //Removes the first word in the array
-            foodDataSplit.shift();
+            //Converting the foodWeeks and foodDays objects to arrays
+            foodWeeks = Object.keys(foodWeeks);
+            foodDays = Object.keys(foodDays);
 
-            //Adds the new first word to the foodDays object
-            if (foodDataSplit[0] !== "") {
-                foodDays[foodDataSplit[0]] = true;
+            //Iterate over the foodDays and foodWeeks arrays, and append them to the food object
+            for (var x = 0; x < foodDays.length; x++) {
+                for (var y = 0; y < foodWeeks.length; y++) {
+                    foodDay = foodDays[x];
+                    food[foodWeeks[y]] = {
+                        foodDay: null
+                    };
+                }
             }
 
-            //Removes the first word in the array
-            foodDataSplit.shift();
-
-            //Join all the unremoved words together as a string again and remove the leading and trailing character
-            var foodDesc = foodDataSplit.join(" ");
-            foodDesc = foodDesc.substring(1, foodDesc.length - 1);
-
-            //Push description to the foodDescs array
-            foodDescs.push(foodDesc);
-        }
-
-        //Converting the foodWeeks and foodDays objects to arrays
-        foodWeeks = Object.keys(foodWeeks);
-        foodDays = Object.keys(foodDays);
-
-        //Iterate over the foodDays and foodWeeks arrays, and append them to the food object
-        for (var x = 0; x < foodDays.length; x++) {
-            for (var y = 0; y < foodWeeks.length; y++) {
-                foodDay = foodDays[x];
-                food[foodWeeks[y]] = {
-                    foodDay: null
-                };
+            //Iterate the foodDescs and foodWeeks arrays, and append the descriptions to the days in the food object
+            for (var i = 0; i < foodDays.length; i++) {
+                for (var x = 0; x < foodWeeks.length; x++) {
+                    food[foodWeeks[x]][foodDays[i]] = foodDescs[i + (5 * x)];
+                }
             }
         }
 
-        //Iterate the foodDescs and foodWeeks arrays, and append the descriptions to the days in the food object
-        for (var i = 0; i < foodDays.length; i++) {
-            for (var x = 0; x < foodWeeks.length; x++) {
-                food[foodWeeks[x]][foodDays[i]] = foodDescs[i + (5 * x)];
-            }
-        }
         //Update the view
         submitSettings();
     });
