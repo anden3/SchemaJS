@@ -23,6 +23,7 @@ if ( $_POST ) {
     //Save the sent variables to local variables
     $search = $_POST['data'];
     $search = mb_strtoupper($search, "UTF-8");
+    $search = "%" . $search . "%";
 
     $offset = 0;
     $specialChars = array("Å", "Ä", "Ö", "É", "È", "Ë", "Ü");
@@ -40,25 +41,25 @@ if ( $_POST ) {
 
     //Save the SQL-query as a string
     if ($table == "teachers") {
-        $stmt = mysqli_prepare($con, "SELECT FullName, Name FROM $table WHERE School = ? AND (? = SUBSTRING(UPPER(FirstName), 1, LENGTH(?) - ?) OR ? = SUBSTRING(UPPER(LastName), 1, LENGTH(?) - ?) OR ? = SUBSTRING(UPPER(FullName), 1, LENGTH(?) - ?)) LIMIT 5");
+        $stmt = mysqli_prepare($con, "SELECT FullName, Name FROM $table WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC LIMIT 5");
 
-        mysqli_stmt_bind_param($stmt, "sssississi", $school, $search, $search, $offset, $search, $search, $offset, $search, $search, $offset);
+        mysqli_stmt_bind_param($stmt, "ss", $school, $search);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_bind_result($stmt, $FullName, $Name);
     }
 
     else if ($table == "schools") {
-        $stmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM $table WHERE ? = SUBSTRING(UPPER(Name), 1, LENGTH(?) - ?) LIMIT 5");
+        $stmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM $table WHERE Name LIKE ? ORDER BY Name ASC LIMIT 5");
 
-        mysqli_stmt_bind_param($stmt, "ssi", $search, $search, $offset);
+        mysqli_stmt_bind_param($stmt, "s", $search);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_bind_result($stmt, $Name, $ID, $Code);
     }
 
     else {
-        $stmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (? = SUBSTRING(UPPER(Name), 1, LENGTH(?) - ?)) LIMIT 5");
+        $stmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC LIMIT 5");
 
-        mysqli_stmt_bind_param($stmt, "sssi", $school, $search, $search, $offset);
+        mysqli_stmt_bind_param($stmt, "ss", $school, $search);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_bind_result($stmt, $Name);
     }
@@ -66,7 +67,7 @@ if ( $_POST ) {
     //Run the query, and save the results in an object
     if ($table == "teachers") {
         while (mysqli_stmt_fetch($stmt)) {
-            printf("%s (%s),", $FullName, $Name);
+            printf("%s {%s},", $FullName, $Name);
         }
         mysqli_stmt_close($stmt);
     }

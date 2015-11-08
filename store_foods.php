@@ -19,24 +19,125 @@ if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
+function guidv4() {
+    $data = openssl_random_pseudo_bytes(16);
+
+    assert(strlen($data) == 16);
+
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
+
+$query = "SELECT Name, ID FROM schools WHERE ID = 29540";
+
 $stmt = mysqli_prepare($con, "INSERT INTO food (School, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?)");
 
-//If the file receives a POST request
-if ($_POST) {
-    //Save the sent variables to local variables
-    $school = $_POST['school'];
-    $week = $_POST['week'];
-    $day = $_POST['day'];
-    $desc = $_POST['desc'];
-    $id = uniqid();
+//Run the query, and save the results in an object
+if ($result = mysqli_query($con, $query)) {
+    while ($object = mysqli_fetch_object($result)) {
+        $school = $object->Name;
+        $ID = $object->ID;
 
-    mysqli_stmt_bind_param($stmt, "sisss", $school, $week, $day, $desc, $id);
-    mysqli_stmt_execute($stmt);
+        $hasArguments = false;
 
-    echo mysqli_error($con);
+        if (strpos($school, "(") !== false) {
+            $hasArguments = true;
+        }
+        else if (strpos($school, "[") !== false) {
+            $hasArguments = true;
+        }
 
-    //Close the connection
-    mysqli_close($con);
+        if ($hasArguments) {
+            if (strpos($school, "&") === false && strpos($school, "[") !== false) {
+                $charPos = strpos($school, "[");
+                $firstChar = "[";
+                $lastChar = "]";
+            }
+            else {
+                $charPos = strpos($school, "(");
+                $firstChar = "(";
+                $lastChar = ")";
+            }
+
+            $length = strlen($school);
+
+            $mainPart = substr($school, 0, $length - ($length - $charPos));
+
+            $arguments = str_replace($mainPart, "", $school);
+
+            if (strpos($school, "&") !== false) {
+                $arguments = explode("&", $arguments);
+
+                $arguments[0] = trim($arguments[0], "\(\)");
+                $arguments[1] = trim($arguments[1], "\[\]");
+
+                $school = $mainPart . $arguments[1];
+            }
+            else {
+                if (strpos($arguments, "(") !== false) {
+                    $school = $mainPart;
+                }
+                else {
+                    $arguments = trim($arguments, $firstChar);
+                    $arguments = trim($arguments, $lastChar);
+
+                    $school = $mainPart . $arguments;
+                }
+            }
+        }
+
+        $school = mb_strtolower($school, "UTF-8");
+
+        $specialChars = ["å", "ä", "ö", "é", "è", " & ", " ", "/"];
+        $replaceChars = ["a", "a", "o", "e", "", "-", "-", "-"];
+
+        $school = str_replace($specialChars, $replaceChars, $school);
+
+        $school = trim($school);
+
+        if (@file_get_contents("http://meny.dinskolmat.se/$school/rss/") !== false) {
+            $rss = simplexml_load_file("http://meny.dinskolmat.se/$school/rss/");
+
+            foreach ($rss->channel->item as $item) {
+                $title = $item->title;
+                $titleItems = explode(" ", $title);
+
+                $foodWeek = intval($titleItems[3]);
+                $foodDay = $titleItems[0];
+
+                $foodDesc = $item->description;
+
+                $replaceValues = ["[CDATA[", "]]", "( ", " )", "/ "];
+                $replacementValues = ["", "", "(", ")", "/"];
+
+                $foodDesc = str_replace($replaceValues, $replacementValues, $foodDesc);
+
+                $foodDesc = trim($foodDesc);
+
+                if (strpos($foodDesc, "<br/>") !== false) {
+                    $foods = explode("<br/>", $foodDesc, 2);
+                    $foodDesc = $foods[0];
+                }
+
+                if ($foodDesc !== "Menyn saknas") {
+                    $uuid = guidv4();
+
+                    mysqli_stmt_bind_param($stmt, "sisss", $ID, $foodWeek, $foodDay, $foodDesc, $uuid);
+                    mysqli_stmt_execute($stmt);
+
+                    echo mysqli_error($con);
+                }
+            }
+        }
+    }
+
+    //Frees the memory used for saving the result
+    mysqli_free_result($result);
 }
+
+//Close the connection
+mysqli_close($con);
 
 ?>
