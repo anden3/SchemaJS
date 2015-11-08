@@ -24,6 +24,7 @@ var header = document.getElementById("header"),
     screenOrientation = ($(window).width() > $(window).height())? 90 : 0,
 
     popupVisible = false,
+    schoolChanged = false,
 
     replaceChars = {
         å: "Ã¥",
@@ -315,6 +316,12 @@ var togglePopup = function (toggle, div) {
         div.style.display = "none";
         background.style.webkitFilter = "blur(0)";
         document.getElementById("progress").style.webkitFilter = "blur(0)";
+
+        if ($(".searchResults").length) {
+            $(".searchResults").each(function () {
+                $(this).remove();
+            });
+        }
     }
 };
 
@@ -332,11 +339,6 @@ var submitSettings = function (direction) {
     subjectID = document.getElementById("subjectID").value;
 
     changeOptions(scheduleType + "Radio");
-
-    if (typeof document.getElementById("schoolID").name !== "undefined") {
-        schoolID = document.getElementById("schoolID").name;
-        schoolName = document.getElementById("schoolID").value;
-    }
 
     if (scheduleType === "student") {
         //Checks if the year in the userID is written using four numbers, and if so, decreases it to two numbers
@@ -434,6 +436,11 @@ var submitSettings = function (direction) {
 
     //Hide the settings window
     togglePopup(0, settings);
+
+    if (schoolChanged) {
+        getFoods();
+        schoolChanged = false;
+    }
 };
 
 var changeOptions = function (button) {
@@ -454,49 +461,59 @@ var parseSearchResults = function (data, id) {
         searchArray = searchResult.split(","),
         searchIDs = [];
 
-    for (var i = 0; i < searchArray.length; i++) {
-        if (id === "schoolOptions") {
-            if (!isNaN(searchArray[i])) {
-                searchIDs.push(searchArray[i]);
+    if (searchResult !== "") {
+        for (var i = 0; i < searchArray.length; i++) {
+            if (id === "schoolOptions") {
+                if (!isNaN(searchArray[i])) {
+                    searchIDs.push(searchArray[i]);
+                    searchArray.splice(i, 1);
+                }
+            }
+
+            if (searchArray[i].indexOf("(") !== -1 && searchArray[i].indexOf(")") !== -1) {
+                var mainPart = searchArray[i].substring(0, searchArray[i].indexOf("(")),
+                    addedPart = searchArray[i].substring(searchArray[i].indexOf("(") + 1, searchArray[i].indexOf(")"));
+
+                searchArray[i] = mainPart + addedPart;
+            }
+
+            if (searchArray[i].substring(0, 1) === "[" && searchArray[i].substring(searchArray[i].length - 1, searchArray[i].length) === "]") {
+                searchArray.splice(i, 1);
+            }
+
+            if (searchArray[i].indexOf("{") !== -1 && searchArray[i].indexOf("}") !== -1) {
+                searchArray[i] = searchArray[i].replace("{", "(");
+                searchArray[i] = searchArray[i].replace("}", ")");
+            }
+
+            if (searchArray[i] === "") {
                 searchArray.splice(i, 1);
             }
         }
 
-        if (searchArray[i].indexOf("(") !== -1 && searchArray[i].indexOf(")") !== -1) {
-            var mainPart = searchArray[i].substring(0, searchArray[i].indexOf("(")),
-                addedPart = searchArray[i].substring(searchArray[i].indexOf("(") + 1, searchArray[i].indexOf(")"));
+        fixChars(searchArray);
 
-            searchArray[i] = mainPart + addedPart;
+        if ($("." + id + "Search").length >= 1) {
+            $("." + id + "Search").remove();
         }
 
-        if (searchArray[i].substring(0, 1) === "[" && searchArray[i].substring(searchArray[i].length - 1, searchArray[i].length) === "]") {
-            searchArray.splice(i, 1);
-        }
+        $("." + id).append($('<ul></ul>').addClass("searchResults " + id + "Search"));
 
-        if (searchArray[i].indexOf("{") !== -1 && searchArray[i].indexOf("}") !== -1) {
-            searchArray[i] = searchArray[i].replace("{", "(");
-            searchArray[i] = searchArray[i].replace("}", ")");
-        }
-
-        if (searchArray[i] === "") {
-            searchArray.splice(i, 1);
+        for (var i = 0; i < searchArray.length; i++) {
+            if (typeof searchIDs[i] !== "undefined") {
+                $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]).attr("name", searchIDs[i]));
+            }
+            else {
+                $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
+            }
         }
     }
 
-    fixChars(searchArray);
-
-    if ($("." + id + "Search").length >= 1) {
-        $("." + id + "Search").remove();
-    }
-
-    $("." + id).append($('<ul></ul>').addClass("searchResults " + id + "Search"));
-
-    for (var i = 0; i < searchArray.length; i++) {
-        if (typeof searchIDs[i] !== "undefined") {
-            $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]).attr("name", searchIDs[i]));
-        }
-        else {
-            $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
+    else {
+        if ($(".searchResults").length) {
+            $(".searchResults").each(function () {
+                $(this).remove();
+            });
         }
     }
 }
@@ -541,8 +558,44 @@ var eventListeners = function () {
         });
     }
 
+    var typingTimer,
+        typingThreshold = 300;
+
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
+            clearTimeout(typingTimer);
+
+            typingTimer = setTimeout(function () {
+                if (isNaN(event.target.value) || event.target.value === "") {
+                    var table;
+                    if (event.target.id.substring(0, event.target.id.length - 2) === "class") {
+                        table = "classes";
+                    }
+                    else {
+                        table = event.target.id.substring(0, event.target.id.length - 2) + "s";
+                    }
+
+                    $.post("search_sql.php", {
+                        data: event.target.value,
+                        table: table,
+                        school: schoolID
+                    }, function (data) {
+                        var id = event.target.id;
+
+                        id = id.substring(0, id.length - 2);
+                        id = id + "Options";
+
+                        parseSearchResults(data, id);
+                    });
+                }
+            }, typingThreshold);
+        });
+
+        $(searchFields[i]).keydown(function () {
+            clearTimeout(typingTimer);
+        })
+
+        $(searchFields[i]).focusin(function (event) {
             if (isNaN(event.target.value) || event.target.value === "") {
                 var table;
                 if (event.target.id.substring(0, event.target.id.length - 2) === "class") {
@@ -564,6 +617,19 @@ var eventListeners = function () {
 
                     parseSearchResults(data, id);
                 });
+            }
+        });
+
+        $(searchFields[i]).focusout(function (event) {
+            var id = event.target.id,
+                type = id.substring(0, id.length - 2);
+
+            if ($("." + type + "OptionsSearch").length) {
+                setTimeout(function () {
+                    $("." + type + "OptionsSearch").each(function () {
+                        $(this).remove();
+                    });
+                }, 500);
             }
         });
     }
@@ -602,6 +668,12 @@ var eventListeners = function () {
 
     for (var i = 0; i < radioButtons.length - 2; i++) {
         $(radioButtons[i]).click(function (event) {
+            if ($(".searchResults").length) {
+                $(".searchResults").each(function () {
+                    $(this).remove();
+                });
+            }
+
             changeOptions(event.target.id);
         });
     }
@@ -633,6 +705,15 @@ var eventListeners = function () {
             id = id.substring(id.indexOf("(") + 1, id.length - 1);
             field.value = name;
             field.setAttribute("name", id);
+        }
+
+        if (schoolID !== document.getElementById("schoolID").name) {
+            schoolChanged = true;
+
+            if (typeof document.getElementById("schoolID").name !== "undefined") {
+                schoolID = document.getElementById("schoolID").name;
+                schoolName = document.getElementById("schoolID").value;
+            }
         }
     });
 
@@ -716,8 +797,12 @@ var getFoods = function () {
     $.post("get_foods.php", {
         school: schoolID
     }, function (data) {
-        //console.log(data);
         if (data !== "") {
+            foodWeeks = {};
+            foodDays = {};
+            foodDescs = [];
+            food = {};
+
             foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
 
             //Fixes broken characters

@@ -183,6 +183,10 @@ label.mdl-radio {
     border-radius: 0;
     z-index: 15;
     list-style-type: none;
+    min-height: 0px;
+    max-height: 125px;
+    overflow: hidden;
+    overflow-y: scroll;
 }
 
 .searchResults * {
