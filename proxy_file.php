@@ -39,7 +39,7 @@ if ($result = mysqli_query($con, $query)) {
         }
 
         if ($hasArguments) {
-            if (strpos($school, ",") === false && strpos($school, "[") !== false) {
+            if (strpos($school, "&") === false && strpos($school, "[") !== false) {
                 $charPos = strpos($school, "[");
                 $firstChar = "[";
                 $lastChar = "]";
@@ -59,8 +59,8 @@ if ($result = mysqli_query($con, $query)) {
 
             $arguments = str_replace($mainPart, "", $school);
 
-            if (strpos($school, ",") !== false) {
-                $arguments = explode(",", $arguments);
+            if (strpos($school, "&") !== false) {
+                $arguments = explode("&", $arguments);
 
                 $arguments[0] = trim($arguments[0], "\(\)");
                 $arguments[1] = trim($arguments[1], "\[\]");

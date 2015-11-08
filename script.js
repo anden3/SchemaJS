@@ -452,14 +452,25 @@ var changeOptions = function (button) {
 var parseSearchResults = function (data, id) {
     var searchResult = data.trim(),
         searchArray = searchResult.split(","),
-        tempSchoolID;
+        searchIDs = [];
 
     for (var i = 0; i < searchArray.length; i++) {
         if (id === "schoolOptions") {
             if (!isNaN(searchArray[i])) {
-                tempSchoolID = searchArray[i];
+                searchIDs.push(searchArray[i]);
                 searchArray.splice(i, 1);
             }
+        }
+
+        if (searchArray[i].indexOf("(") !== -1 && searchArray[i].indexOf(")") !== -1) {
+            var mainPart = searchArray[i].substring(0, searchArray[i].indexOf("(")),
+                addedPart = searchArray[i].substring(searchArray[i].indexOf("(") + 1, searchArray[i].indexOf(")"));
+
+            searchArray[i] = mainPart + addedPart;
+        }
+
+        if (searchArray[i].substring(0, 1) === "[" && searchArray[i].substring(searchArray[i].length - 1, searchArray[i].length) === "]") {
+            searchArray.splice(i, 1);
         }
 
         if (searchArray[i] === "") {
@@ -476,8 +487,8 @@ var parseSearchResults = function (data, id) {
     $("." + id).append($('<ul></ul>').addClass("searchResults " + id + "Search"));
 
     for (var i = 0; i < searchArray.length; i++) {
-        if (typeof tempSchoolID !== "undefined") {
-            $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]).attr("name", tempSchoolID));
+        if (typeof searchIDs[i] !== "undefined") {
+            $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]).attr("name", searchIDs[i]));
         }
         else {
             $("." + id + "Search").append($('<li>' + searchArray[i] + '</li>').addClass("clickable searchResult").attr("id", searchArray[i]));
@@ -527,26 +538,31 @@ var eventListeners = function () {
 
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
-            var table;
-            if (event.target.id.substring(0, event.target.id.length - 2) === "class") {
-                table = "classes";
+            if (!isNaN(event.target.value)) {
+                $(event.target.id).val(event.target.value).attr("name", event.target.value);
             }
             else {
-                table = event.target.id.substring(0, event.target.id.length - 2) + "s";
+                var table;
+                if (event.target.id.substring(0, event.target.id.length - 2) === "class") {
+                    table = "classes";
+                }
+                else {
+                    table = event.target.id.substring(0, event.target.id.length - 2) + "s";
+                }
+
+                $.post("search_sql.php", {
+                    data: event.target.value,
+                    table: table,
+                    school: schoolID
+                }, function (data) {
+                    var id = event.target.id;
+
+                    id = id.substring(0, id.length - 2);
+                    id = id + "Options";
+
+                    parseSearchResults(data, id);
+                });
             }
-
-            $.post("search_sql.php", {
-                data: event.target.value,
-                table: table,
-                school: schoolID
-            }, function (data) {
-                var id = event.target.id;
-
-                id = id.substring(0, id.length - 2);
-                id = id + "Options";
-
-                parseSearchResults(data, id);
-            });
         });
     }
 
@@ -611,8 +627,6 @@ var eventListeners = function () {
         else {
             var fieldID = scheduleType + "ID",
                 field = document.getElementById(fieldID);
-
-            console.log(fieldID);
 
             id = id.substring(id.indexOf("(") + 1, id.length - 1);
             field.value = name;
@@ -744,8 +758,6 @@ var parseRSS = function () {
 
                 foodDay = fixChars(foodDay);
                 foodDesc = fixChars(foodDesc);
-
-                console.log(foodDesc);
 
                 if (foodDesc !== "Menyn saknas") {
                     /*
