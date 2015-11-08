@@ -366,10 +366,21 @@ var submitSettings = function (direction) {
     }
 
     //Saving the variables to cookies
-    for (var i = 0; i < values.length - 1; i++) {
-        localStorage.setItem(values[i], window[values[i]]);
-        var tempArray = values[i].toUpperCase();
-        createCookie(tempArray, window[values[i]], 365);
+    if (readCookie("COOKIECONSENT") === "accepted") {
+        for (var i = 0; i < values.length - 1; i++) {
+            localStorage.setItem(values[i], window[values[i]]);
+            var tempArray = values[i].toUpperCase();
+            createCookie(tempArray, window[values[i]], 365);
+        }
+    }
+    else {
+        $(".consent-banner").css("display", "block");
+
+        for (var i = 0; i < values.length - 1; i++) {
+            localStorage.setItem(values[i], window[values[i]]);
+            var tempArray = values[i].toUpperCase();
+            createCookie(tempArray, window[values[i]], 0);
+        }
     }
 
     //Getting the week from the number field
@@ -743,6 +754,11 @@ var eventListeners = function () {
     //Hide the settings window when pressing the cancel button
     $("#cancelSettings").click(function () {
         togglePopup(0, settings);
+    });
+
+    $("#cookie-accept").click(function () {
+        $(".consent-banner").css("display", "none");
+        createCookie("COOKIECONSENT", "accepted", 365);
     });
 };
 

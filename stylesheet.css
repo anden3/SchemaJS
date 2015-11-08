@@ -113,6 +113,7 @@ body {
     position: absolute;
     width: auto;
     height: auto;
+    max-width: 460px;
     padding-right: 10px;
     z-index: 10;
     background-color: white;
@@ -228,6 +229,39 @@ label.mdl-radio {
 
 .buttons * {
     margin-right: 10px;
+}
+
+.consent-banner {
+    display: none;
+	width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 0;
+    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.8);
+    height: 12vh;
+    border-radius: 5px;
+}
+
+.consent-banner .row {
+	width: 75%;
+    position: absolute;
+    left: 0;
+}
+
+.consent-banner h4 {
+	margin-left: 23px;
+}
+
+.consent-banner p {
+    font-size: 12px;
+}
+
+#cookie-accept {
+	position: absolute;
+    right: 10px;
+    bottom: 4vh;
 }
 
 /*iPhone compatibity*/

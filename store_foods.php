@@ -30,7 +30,7 @@ function guidv4() {
     return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }
 
-$query = "SELECT Name, ID FROM schools WHERE ID = 29540";
+$query = "SELECT Name, ID FROM schools";
 
 $stmt = mysqli_prepare($con, "INSERT INTO food (School, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?)");
 
