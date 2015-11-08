@@ -700,56 +700,66 @@ var parseRSS = function () {
     $.post("proxy_file.php", {
         school: schoolName
     }, function (data) {
-        $(data).find("item").each(function () { //Looping for every item element in the data
-            var el = $(this); //Setting el to the found element
+        var json = JSON.stringify(data);
+        json = JSON.parse(json);
+        for (var i = 0; i < json.length(); i++) {
+            $(json[i]).find("item").each(function () { //Looping for every item element in the data
+                var el = $(this); //Setting el to the found element
 
-            //Saving the contents of the item element to an array
-            var title = el.find("title").text(),
-                titleItems = title.split(" "),
-                foodWeek = parseInt(titleItems[3]), //Saving the week and day of the array to variables
-                foodDay = titleItems[0];
+                //Saving the contents of the item element to an array
+                var title = el.find("title").text(),
+                    titleItems = title.split(" "),
+                    foodWeek = parseInt(titleItems[3]), //Saving the week and day of the array to variables
+                    foodDay = titleItems[0];
 
-            //Saving the description of the food to a variable
-            var foodDescFull = el[0].children[2].childNodes[0].data;
+                //Saving the description of the food to a variable
+                var foodDescFull = el[0].children[2].childNodes[0].data;
 
-            //If the description contains a line break, then remove the part after the line break
-            if (foodDescFull.indexOf("<br") !== -1) {
-                foodDescFull = foodDescFull.substring(0, foodDescFull.indexOf("<br"));
-            }
+                //If the description contains a line break, then remove the part after the line break
+                if (foodDescFull.indexOf("<br") !== -1) {
+                    foodDescFull = foodDescFull.substring(0, foodDescFull.indexOf("<br"));
+                }
 
-            if (foodDescFull.indexOf("[CDATA[") !== -1) {
-                foodDescFull = foodDescFull.replace("[CDATA[", "");
-            }
+                if (foodDescFull.indexOf("[CDATA[") !== -1) {
+                    foodDescFull = foodDescFull.replace("[CDATA[", "");
+                }
 
-            //Removing spaces between eventual parentheses in the description
-            if (foodDescFull.indexOf("( ") !== -1) {
-                foodDescFull = foodDescFull.replace("( ", "(");
-                foodDescFull = foodDescFull.replace(" )", ")");
-            }
+                //Removing spaces between eventual parentheses in the description
+                if (foodDescFull.indexOf("( ") !== -1) {
+                    foodDescFull = foodDescFull.replace("( ", "(");
+                    foodDescFull = foodDescFull.replace(" )", ")");
+                }
 
-            //Removing space after eventual forward slash
-            if (foodDescFull.indexOf("/ ") !== -1) {
-                foodDescFull = foodDescFull.replace("/ ", "/");
-            }
+                //Removing space after eventual forward slash
+                if (foodDescFull.indexOf("/ ") !== -1) {
+                    foodDescFull = foodDescFull.replace("/ ", "/");
+                }
 
-            if (foodDescFull.indexOf("]]") !== -1) {
-                foodDescFull = foodDescFull.replace("]]", "");
-            }
+                if (foodDescFull.indexOf("]]") !== -1) {
+                    foodDescFull = foodDescFull.replace("]]", "");
+                }
 
-            //Trimming away whitespace from the description
-            var foodDesc = foodDescFull.trim();
+                //Trimming away whitespace from the description
+                var foodDesc = foodDescFull.trim();
 
-            foodDay = fixChars(foodDay);
-            foodDesc = fixChars(foodDesc);
+                foodDay = fixChars(foodDay);
+                foodDesc = fixChars(foodDesc);
 
-            //Sending the variables to the store_foods.php file
-            $.post('store_foods.php', {
-                week: foodWeek,
-                day: foodDay,
-                desc: foodDesc,
-                school: schoolID
+                console.log(foodDesc);
+
+                if (foodDesc !== "Menyn saknas") {
+                    /*
+                    //Sending the variables to the store_foods.php file
+                    $.post('store_foods.php', {
+                        week: foodWeek,
+                        day: foodDay,
+                        desc: foodDesc,
+                        school: schoolID
+                    });
+                    */
+                }
             });
-        });
+        }
     });
 };
 
