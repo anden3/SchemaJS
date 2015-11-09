@@ -122,7 +122,8 @@ if ($result = mysqli_query($con, $query)) {
                 }
 
                 if ($foodDesc !== "Menyn saknas") {
-                    $uuid = guidv4();
+                    //$uuid = guidv4();
+                    $uuid = uniqid();
 
                     mysqli_stmt_bind_param($stmt, "sisss", $ID, $foodWeek, $foodDay, $foodDesc, $uuid);
                     mysqli_stmt_execute($stmt);

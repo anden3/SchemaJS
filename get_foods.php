@@ -23,7 +23,7 @@ if ($_POST) {
     $school = $_POST['school'];
 
     //Save the SQL-query as a string
-    $query = "SELECT * FROM food WHERE School = $school";
+    $query = "SELECT * FROM food WHERE School = $school ORDER BY ID ASC";
 
     //Run the query, and save the results in an object
     if ($result = mysqli_query($con, $query)) {
