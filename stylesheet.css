@@ -235,12 +235,14 @@ label.mdl-radio {
     display: none;
 	width: 100%;
     position: absolute;
-    bottom: 0;
+    bottom: 3px;
     left: 0;
     padding: 0;
     z-index: 1000;
-    background-color: rgba(255, 255, 255, 0.8);
-    height: 12vh;
+    background-color: rgba(255, 255, 255, 1);
+    max-height: 20vh;
+    min-height: 12vh;
+    height: auto;
     border-radius: 5px;
 }
 
@@ -262,6 +264,8 @@ label.mdl-radio {
 	position: absolute;
     right: 10px;
     bottom: 4vh;
+    width: 18vw;
+    font-size: 2vw;
 }
 
 /*iPhone compatibity*/

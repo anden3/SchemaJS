@@ -3,7 +3,7 @@
 ini_set("default_charset", 'utf-8');
 
 //Set proper header to reduce broken characters
-header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
+header('Content-Type: text/plain; charset=utf-8');
 
 //Gets pass from ignored text file
 $pass = rtrim(file_get_contents("sql_pass.txt"));
@@ -36,7 +36,7 @@ if ($_POST) {
     }
 
     //Echo the object
-    echo $object;
+    echo json_encode($object);
 }
 
 //Close the connection

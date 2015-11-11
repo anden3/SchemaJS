@@ -25,19 +25,7 @@ var header = document.getElementById("header"),
 
     popupVisible = false,
     schoolChanged = false,
-
-    replaceChars = {
-        å: "Ã¥",
-        ä: "Ã¤",
-        ö: "Ã¶",
-        Å: "Ã…",
-        Ä: "Ã„",
-        Ö: "Ã–",
-        é: "Ã©",
-        è: "Ã¨",
-        ë: "Ã«",
-        ü: "Ã¼"
-    },
+    noWeeks = null,
 
     days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
     values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "schoolName", "userID", "classID", "roomID", "subjectID", "week"],
@@ -50,27 +38,6 @@ var header = document.getElementById("header"),
     foodDescs = [],
     food = {};
 
-var fixChars = function (object) {
-    var count = 2,
-        item = object;
-
-    while (count > 0) {
-        if (typeof item === "object") {
-            for (var i = 0; i < item.length; i++) {
-                for (c in replaceChars) {
-                    item[i] = item[i].replace(replaceChars[c], c);
-                }
-            }
-        }
-        else if (typeof item === "string") {
-            for (c in replaceChars) {
-                item = item.replace(replaceChars[c], c);
-            }
-        }
-        count--;
-    }
-    return item;
-}
 
 //Function to create a cookie
 var createCookie = function (name, value, days) {
@@ -227,7 +194,7 @@ var progressBar = function () {
         pixelDistance = (scheduleHeight - (window.innerHeight / 9.5)) * percentComplete,
         correction = window.innerHeight * 0.09;
 
-    if (percentComplete < 1 && percentComplete > 0 && days[now.getActualDay()] === currentDay) {
+    if (percentComplete < 1 && percentComplete > 0 && days[now.getActualDay()] === currentDay && !noWeeks) {
         bar.style.display = "block";
         bar.style.top = headerHeight + correction + pixelDistance + "px";
     }
@@ -238,18 +205,27 @@ var progressBar = function () {
 
 //Getting the image from the schedule generator
 var getImage = function () {
-    var ID;
+    var ID,
+        consentBannerHeight = 0;
 
     //Getting the height of the header
     var header = document.getElementById("header"),
         headerStyle = getComputedStyle(header),
-        headerHeightValue = headerStyle.getPropertyValue('height');
+        headerHeightValue = headerStyle.getPropertyValue("height");
 
     headerHeight = Math.round(headerHeightValue.substring(0, headerHeightValue.length - 2));
 
+    if (readCookie("COOKIECONSENT") !== "accepted") {
+        var consentBanner = document.getElementById("consent-banner"),
+            consentBannerStyle = getComputedStyle(consentBanner),
+            consentBannerHeightValue = consentBannerStyle.getPropertyValue("height");
+
+        consentBannerHeight = Math.round(consentBannerHeightValue.substring(0, consentBannerHeightValue.length - 2));
+    }
+
     //Setting the dimensions of the image to the width of the window, and the height to the height of the window - the height of the header
     var width = window.innerWidth,
-        height = $(window).height() - headerHeight;
+        height = $(window).height() - headerHeight - consentBannerHeight;
 
     scheduleHeight = height;
 
@@ -278,7 +254,30 @@ var setImage = function (ID, width, height) {
         //Returns the image
         var url = "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
 
-        background.style.backgroundImage = 'url(' + url + ')';
+        if (noWeeks === null) {
+            $.post("get_color.php", {
+                url: url
+            }, function (data) {
+                if (data === "FFFFCC") {
+                    noWeeks = true;
+                    $("#progress").css("display", "none");
+                    setImage(ID, width, height);
+                }
+                else {
+                    noWeeks = false;
+                    setImage(ID, width, height);
+                }
+            });
+        }
+
+        else if (noWeeks) {
+            var url = "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
+
+            background.style.backgroundImage = 'url(' + url + ')';
+        }
+        else if (!noWeeks) {
+            background.style.backgroundImage = 'url(' + url + ')';
+        }
     }
     else {
         setTimeout(function () {
@@ -449,6 +448,7 @@ var submitSettings = function (direction) {
     togglePopup(0, settings);
 
     if (schoolChanged) {
+        noWeeks = null;
         getFoods();
         schoolChanged = false;
     }
@@ -501,8 +501,6 @@ var parseSearchResults = function (data, id) {
                 searchArray.splice(i, 1);
             }
         }
-
-        fixChars(searchArray);
 
         if ($("." + id + "Search").length >= 1) {
             $("." + id + "Search").remove();
@@ -655,7 +653,7 @@ var eventListeners = function () {
     });
 
     $(window).click(function (event) {
-        if (popupVisible && event.target.id === "schedule") {
+        if (popupVisible && (event.target.id === "schedule" || event.target.id === "header")) {
             togglePopup(0, settings);
             togglePopup(0, about);
         }
@@ -759,6 +757,7 @@ var eventListeners = function () {
     $("#cookie-accept").click(function () {
         $(".consent-banner").css("display", "none");
         createCookie("COOKIECONSENT", "accepted", 365);
+        getImage();
     });
 };
 
@@ -821,14 +820,9 @@ var getFoods = function () {
 
             foodData = data.match(/[^\r\n]+/g); //Splits the string into lines, and saves them to the foodData array
 
-            //Fixes broken characters
-            foodData = fixChars(foodData);
-
             for (var i = 0; i < foodData.length; i++) {
                 //Splits the line into an array of words
                 var foodDataSplit = foodData[i].split(" ");
-
-                foodDataSplit = fixChars(foodDataSplit);
 
                 //Adds the first word to the foodWeeks object
                 if (foodDataSplit[0] !== "") {
