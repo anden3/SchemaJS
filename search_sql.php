@@ -20,27 +20,26 @@ if (mysqli_connect_errno()) {
     echo "error";
 }
 
-$teacherStmt = mysqli_prepare($con, "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC");
-$schoolStmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC");
-
-if ( $_POST ) {
+if ($_POST) {
     //Save the sent variables to local variables
     $search = $_POST['data'];
     $search = mb_strtoupper($search, "UTF-8");
     $search = $search . "%";
 
-    $offset = 0;
-    $specialChars = array("Å", "Ä", "Ö", "É", "È", "Ë", "Ü");
-
-    //Fix for special characters appearing as two characters
-    for ($c = 0, $length = count($specialChars); $c < $length; ++$c) {
-        if (strpos($search, $specialChars[$c]) !== FALSE) {
-            $offset += 1;
-        }
-    }
-
     $table = $_POST['table'];
     $school = $_POST['school'];
+    $isMobile = $_POST['mobile'];
+
+    if ($isMobile) {
+        $teacherStmt = mysqli_prepare($con, "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC LIMIT 5");
+        $schoolStmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC LIMIT 5");
+        $generalStmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC LIMIT 5");
+    }
+    else {
+        $teacherStmt = mysqli_prepare($con, "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC");
+        $schoolStmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC");
+        $generalStmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC");
+    }
 
     //Save the SQL-query as a string
     if ($table == "teachers") {
@@ -56,8 +55,6 @@ if ( $_POST ) {
     }
 
     else {
-        $generalStmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC");
-
         mysqli_stmt_bind_param($generalStmt, "ss", $school, $search);
         mysqli_stmt_execute($generalStmt);
         mysqli_stmt_bind_result($generalStmt, $Name);
