@@ -623,7 +623,8 @@ var eventListeners = function () {
                 $.post("search_sql.php", {
                     data: event.target.value,
                     table: table,
-                    school: schoolID
+                    school: schoolID,
+                    mobile: is_touch_device
                 }, function (data) {
                     var id = event.target.id;
 

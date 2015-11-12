@@ -30,7 +30,7 @@ if ($_POST) {
     $school = $_POST['school'];
     $isMobile = $_POST['mobile'];
 
-    if ($isMobile) {
+    if ($isMobile === "true") {
         $teacherStmt = mysqli_prepare($con, "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC LIMIT 5");
         $schoolStmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC LIMIT 5");
         $generalStmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC LIMIT 5");
