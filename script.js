@@ -254,6 +254,8 @@ var setImage = function (ID, width, height) {
         //Returns the image
         var url = "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
 
+        //Checking for error pages, and if so, tries to get image without week variable. Currently disabled due to not being needed.
+        /*
         if (noWeeks === null) {
             $.post("get_color.php", {
                 url: url
@@ -278,6 +280,9 @@ var setImage = function (ID, width, height) {
         else if (!noWeeks) {
             background.style.backgroundImage = 'url(' + url + ')';
         }
+        */
+
+        background.style.backgroundImage = 'url(' + url + ')';
     }
     else {
         setTimeout(function () {
@@ -880,3 +885,5 @@ setDefaultValues();
 displayDefaultValues();
 getFoods();
 eventListeners();
+
+setInterval(progressBar, 60000);
