@@ -573,13 +573,13 @@ var eventListeners = function () {
     }
 
     var typingTimer,
-        typingThreshold = 300;
+        typingThreshold = 0;
 
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
-            clearTimeout(typingTimer);
+            //clearTimeout(typingTimer);
 
-            typingTimer = setTimeout(function () {
+            //typingTimer = setTimeout(function () {
                 if (isNaN(event.target.value) || event.target.value === "") {
                     var table;
                     if (event.target.id.substring(0, event.target.id.length - 2) === "class") {
@@ -603,12 +603,14 @@ var eventListeners = function () {
                         parseSearchResults(data, id);
                     });
                 }
-            }, typingThreshold);
+            //}, typingThreshold);
         });
 
+        /*
         $(searchFields[i]).keydown(function () {
             clearTimeout(typingTimer);
-        })
+        });
+        */
 
         $(searchFields[i]).focusin(function (event) {
             if (isNaN(event.target.value) || event.target.value === "") {

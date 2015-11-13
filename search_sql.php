@@ -7,7 +7,6 @@ $pass = rtrim(file_get_contents("sql_pass.txt"));
 
 //Set proper header to reduce broken characters
 header('Content-Type: text/plain; charset=utf-8');
-//header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 
 //Connect to the SQL-database
 $con = mysqli_connect("mysql513.loopia.se", "98anve32@k132604", $pass, "kodlabb_se_db_6_db_7_db_2_db_13");
@@ -31,14 +30,14 @@ if ($_POST) {
     $isMobile = $_POST['mobile'];
 
     if ($isMobile === "true") {
-        $teacherStmt = mysqli_prepare($con, "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC LIMIT 5");
-        $schoolStmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC LIMIT 5");
-        $generalStmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC LIMIT 5");
+        $teacherStmt = mysqli_prepare($con, "/*" . MYSQLND_QC_ENABLE_SWITCH . "*/" . "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC LIMIT 5");
+        $schoolStmt = mysqli_prepare($con, "/*" . MYSQLND_QC_ENABLE_SWITCH . "*/" . "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC LIMIT 5");
+        $generalStmt = mysqli_prepare($con, "/*" . MYSQLND_QC_ENABLE_SWITCH . "*/" . "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC LIMIT 5");
     }
     else {
-        $teacherStmt = mysqli_prepare($con, "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC");
-        $schoolStmt = mysqli_prepare($con, "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC");
-        $generalStmt = mysqli_prepare($con, "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC");
+        $teacherStmt = mysqli_prepare($con, "/*" . MYSQLND_QC_ENABLE_SWITCH . "*/" . "SELECT FullName, Name FROM teachers WHERE School = ? AND (FullName LIKE ?) ORDER BY FullName ASC");
+        $schoolStmt = mysqli_prepare($con, "/*" . MYSQLND_QC_ENABLE_SWITCH . "*/" . "SELECT Name, ID, KeyCode FROM schools WHERE Name LIKE ? ORDER BY Name ASC");
+        $generalStmt = mysqli_prepare($con, "/*" . MYSQLND_QC_ENABLE_SWITCH . "*/" . "SELECT Name FROM $table WHERE School = ? AND (Name LIKE ?) ORDER BY Name ASC");
     }
 
     //Save the SQL-query as a string
