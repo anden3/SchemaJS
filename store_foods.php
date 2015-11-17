@@ -19,20 +19,9 @@ if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-function guidv4() {
-    $data = openssl_random_pseudo_bytes(16);
+$query = "SELECT Name, ID FROM schools;";
 
-    assert(strlen($data) == 16);
-
-    $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
-    $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
-
-    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
-}
-
-$query = "SELECT Name, ID FROM schools";
-
-$stmt = mysqli_prepare($con, "INSERT INTO food (School, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?)");
+$stmt = mysqli_prepare($con, "INSERT INTO food (School, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?);");
 
 //Run the query, and save the results in an object
 if ($result = mysqli_query($con, $query)) {
@@ -122,8 +111,7 @@ if ($result = mysqli_query($con, $query)) {
                 }
 
                 if ($foodDesc !== "Menyn saknas") {
-                    //$uuid = guidv4();
-                    $uuid = uniqid();
+                    $uuid = md5(serialize([$school, $foodWeek, $foodDay, foodDesc]));
 
                     mysqli_stmt_bind_param($stmt, "sisss", $ID, $foodWeek, $foodDay, $foodDesc, $uuid);
                     mysqli_stmt_execute($stmt);
