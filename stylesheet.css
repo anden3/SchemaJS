@@ -31,7 +31,7 @@ label.mdl-radio{margin:0 0 0 -5px;}
 .row.days ul li{margin:0;}
 .buttons{margin:50px 0 0 5px;padding-bottom:10px;}
 .buttons *{margin-right:10px;}
-.consent-banner{display:none;width:100%;position:absolute;bottom:3px;left:0;padding:0;z-index:1000;background-color:rgba(255, 255, 255, 1);max-height:20vh;min-height:12vh;height:auto;border-radius:5px;}
+.consent-banner{display:none;width:100%;position:absolute;bottom:3px;left:0;padding:0;z-index:5;background-color:rgba(255, 255, 255, 1);max-height:20vh;min-height:12vh;height:auto;border-radius:5px;}
 .consent-banner .row{width:75%;position:absolute;left:0;}
 .consent-banner h4{margin-left:23px;}
 .consent-banner p{font-size:12px;}
