@@ -19,6 +19,7 @@ var header = document.getElementById("header"),
     headerHeight,
     scheduleHeight,
     currentDay,
+    lastNumbersArr = [0, 0, 0, 0],
 
     is_touch_device = 'ontouchstart' in document.documentElement,
     screenOrientation = ($(window).width() > $(window).height())? 90 : 0,
@@ -31,7 +32,6 @@ var header = document.getElementById("header"),
     values = ["scheduleType", "IDType", "teacherID", "teacherName", "schoolID", "schoolName", "userID", "classID", "roomID", "subjectID", "week"],
 
     daysAdded = 0,
-    primaryKey = 0,
 
     foodWeeks = {},
     foodDays = {},
@@ -106,14 +106,16 @@ var setDefaultValues = function () {
         } else {
             document.getElementById("classRadio").checked = true;
         }
-    } else if (localStorage.IDType !== null && typeof localStorage.IDType !== "undefined") {
+    }
+    else if (localStorage.IDType !== null && typeof localStorage.IDType !== "undefined") {
         IDType = localStorage.IDType;
         if (IDType.length >= 10) {
             document.getElementById("userRadio").checked = true;
         } else {
             document.getElementById("classRadio").checked = true;
         }
-    } else {
+    }
+    else {
         IDType = userID;
         document.getElementById("userRadio").checked = true;
     }
@@ -125,25 +127,66 @@ var setDefaultValues = function () {
     if (today >= 32) {
         today = 1;
         week += 1;
-    } else {
+    }
+    else {
         //Else, set week to current week
         week = parseInt(week);
     }
 };
 
+var returnPersonalNumber = function (text) {
+    if (text.length > 6) {
+        if (text.indexOf("-") > -1) {
+            var lastNumbers = text.substring(7, text.length);
+
+            text = text.substring(0, 7);
+        }
+        else {
+            var lastNumbers = text.substring(6, text.length);
+
+            text = text.substring(0, 6);
+        }
+
+        var replacement = "";
+
+        for (var c = 0; c < lastNumbers.length; c++) {
+            replacement += "*";
+        }
+
+        if (typeof text + replacement !== "undefined") {
+            return text + replacement;
+        }
+        else {
+            return false;
+        }
+    }
+};
+
 //Update the values of the settings with the stored values
 var displayDefaultValues = function () {
-    for (var i = 6; i < values.length; i++) {
+    for (var i = 7; i < values.length; i++) {
         document.getElementById(values[i]).value = window[values[i]];
     }
 
     document.getElementById("dayPicker").innerHTML = "<p>" + days[(Math.log(today) / Math.log(2))] + "</p>";
+
     document.getElementById(scheduleType + "Radio").checked = true;
+
     document.getElementById("teacherID").value = teacherName;
     document.getElementById("teacherID").setAttribute("name", teacherName.substring(teacherName.indexOf("(" + 1), teacherName.length - 1));
+
     document.getElementById("schoolID").value = schoolName;
     document.getElementById("schoolID").setAttribute("name", schoolID);
-}
+
+    document.getElementById("userID").setAttribute("name", userID);
+
+    if (!!returnPersonalNumber(userID)) {
+        document.getElementById("userID").value = returnPersonalNumber(userID);
+    }
+    else {
+        document.getElementById("userID").value = "";
+    }
+};
 
 var progressBar = function () {
     var now = new Date(),
@@ -201,7 +244,7 @@ var progressBar = function () {
     else {
         bar.style.display = "none";
     }
-}
+};
 
 //Getting the image from the schedule generator
 var getImage = function () {
@@ -289,7 +332,7 @@ var setImage = function (ID, width, height) {
             setImage(ID, width, height);
         }, 200);
     }
-}
+};
 
 //Function to toggle between displaying and hiding the settings
 var togglePopup = function (toggle, div) {
@@ -332,7 +375,7 @@ var togglePopup = function (toggle, div) {
 //What happens when the Verkställ button is pressed, or the navigation keys/swipes are pressed/swiped
 var submitSettings = function (direction) {
     //Saving text fields to variables
-    userID = document.getElementById("userID").value;
+    userID = document.getElementById("userID").name;
     classID = document.getElementById("classID").value;
 
     roomID = document.getElementById("roomID").value;
@@ -352,7 +395,7 @@ var submitSettings = function (direction) {
         }
 
         //Checks if the userID has a dash in it, and if not, it adds one
-        if (userID.substring(userID.length - 5, userID.length - 4) !== "-" && userID != "") {
+        if (userID.substring(userID.length - 5, userID.length - 4) !== "-" && userID !== "") {
             userID = userID.substring(0, userID.length - 4) + "-" + userID.substring(userID.length - 4, userID.length);
             document.getElementById("userID").value = userID;
         }
@@ -364,7 +407,8 @@ var submitSettings = function (direction) {
         //Checking which radio button is checked, and saving the corresponding id to IDType
         if (document.getElementById("userRadio").checked) {
             IDType = userID;
-        } else {
+        }
+        else {
             IDType = classID;
         }
     }
@@ -403,17 +447,20 @@ var submitSettings = function (direction) {
             week -= 1;
             dayIndex = 5;
         }
-    } else if (direction === 38 || direction === "up") {
+    }
+    else if (direction === 38 || direction === "up") {
         week += 1;
         dayIndex += daysAdded;
-    } else if (direction === 39 || direction === "right") {
+    }
+    else if (direction === 39 || direction === "right") {
         dayIndex += 1;
 
         if (dayIndex > 5) {
             week += 1;
             dayIndex = 0;
         }
-    } else if (direction === 40 || direction === "down") {
+    }
+    else if (direction === 40 || direction === "down") {
         week -= 1;
         dayIndex += daysAdded;
     }
@@ -421,7 +468,8 @@ var submitSettings = function (direction) {
     //If the day isn't the week view, then set the view to that day
     if (dayIndex != 5) {
         today = Math.pow(2, dayIndex);
-    } else { //Else, set the view to the week view
+    }
+    else { //Else, set the view to the week view
         today = 0;
     }
 
@@ -438,7 +486,8 @@ var submitSettings = function (direction) {
         foodElement.style.display = "block";
         background.style.marginTop = "12vh";
         foodElement.innerHTML = "<p>" + food[week][days[dayIndex]] + "</p>";
-    } else { //Else, hide the food bar
+    }
+    else { //Else, hide the food bar
         header.style.height = "6vh";
         foodElement.style.display = "none";
         background.style.marginTop = "6vh";
@@ -470,7 +519,7 @@ var changeOptions = function (button) {
     $(id).css("display", "block");
 
     scheduleType = button.substring(0, button.length - 5);
-}
+};
 
 var parseSearchResults = function (data, id) {
     var searchResult = data.trim(),
@@ -530,7 +579,7 @@ var parseSearchResults = function (data, id) {
             });
         }
     }
-}
+};
 
 //Adding event listeners for different events
 var eventListeners = function () {
@@ -572,8 +621,10 @@ var eventListeners = function () {
         });
     }
 
+    /*
     var typingTimer,
         typingThreshold = 0;
+    */
 
     for (var i = 0; i < searchFields.length; i++) {
         $(searchFields[i]).keyup(function (event) {
@@ -675,7 +726,7 @@ var eventListeners = function () {
 
     $("#aboutButton").click(function () {
         togglePopup(1, about);
-    })
+    });
 
     //Enable clicking on the days in the drop-down menu
     for (var i = 0; i < days.length; i++) {
@@ -735,6 +786,61 @@ var eventListeners = function () {
         }
     });
 
+    $("#userID").keyup(function (event) {
+        var text = event.target.value;
+        var lastNumbers;
+
+        if (event.which !== 13) {
+            if (text.substring(0, 2) === "19" || text.substring(0, 2) === "20") {
+                text = text.substring(2, text.length);
+                event.target.value = text;
+            }
+
+            if (text.length > 7) {
+                if (text.indexOf("-") > -1 && text.length > 7) {
+                    if (text.length > 12) {
+                        lastNumbers = text.substring(8, 12);
+                    }
+                    else {
+                        lastNumbers = text.substring(7, text.length);
+                    }
+                }
+                else {
+                    if (text.length > 11) {
+                        lastNumbers = text.substring(7, 11);
+                    }
+                    else {
+                        lastNumbers = text.substring(6, text.length);
+                    }
+                }
+
+                for (var c = 0; c < lastNumbers.length; c++) {
+                    if (lastNumbers[c] !== "*" && lastNumbers[c] !== "-") {
+                        lastNumbersArr[c] = lastNumbers[c];
+                    }
+                }
+
+                if (text.indexOf("-") > -1) {
+                    text = text.substring(0, 7);
+                }
+                else {
+                    text = text.substring(0, 6);
+                }
+
+                event.target.setAttribute("name", text + lastNumbersArr.join(""));
+
+                var replacement = "";
+
+                for (var c = 0; c < lastNumbers.length; c++) {
+                    replacement += "*";
+                }
+
+                event.target.value = text + replacement;
+                replacement = "";
+            }
+        }
+    });
+
     //If enter is pressed while one of the textfields are edited, submit the settings
     for (var i = 0; i < textFields.length; i++) {
         $(textFields[i]).keydown(function (event) {
@@ -771,7 +877,7 @@ var eventListeners = function () {
 };
 
 //Function for detecting swipes and their direction
-function swipedetect(el, callback) {
+var swipedetect = function (el, callback) {
     var touchsurface = el,
         swipedir,
         startX,
@@ -783,9 +889,7 @@ function swipedetect(el, callback) {
         handleswipe = callback || function (swipedir) {};
 
     touchsurface.addEventListener('touchstart', function (e) {
-        var touchobj = e.changedTouches[0],
-            dist = 0;
-
+        var touchobj = e.changedTouches[0];
         swipedir = 'none';
         startX = touchobj.pageX;
         startY = touchobj.pageY;
@@ -806,7 +910,8 @@ function swipedetect(el, callback) {
         if (elapsedTime <= allowedTime) { //First condition for a swipe met
             if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) { //Second condition for horizontal swipe met
                 swipedir = (distX < 0) ? 'right' : 'left'; //If dist traveled is negative, it indicates left swipe
-            } else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { //Second condition for vertical swipe met
+            }
+            else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) { //Second condition for vertical swipe met
                 swipedir = (distY < 0) ? 'down' : 'up'; //If dist traveled is negative, it indicates up swipe
             }
         }
