@@ -374,6 +374,11 @@ var togglePopup = function (toggle, div) {
 
 //What happens when the Verkställ button is pressed, or the navigation keys/swipes are pressed/swiped
 var submitSettings = function (direction) {
+
+    if (window.location.search.length > 0) {
+        window.location.search = "";
+    }
+
     //Saving text fields to variables
     userID = document.getElementById("userID").name;
     classID = document.getElementById("classID").value;
