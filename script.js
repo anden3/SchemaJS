@@ -203,7 +203,13 @@ var progressBar = function () {
 
         bar = document.getElementById("progress");
 
-    if (scheduleType === "student") {
+    if (scheduleType == "student" && document.getElementById("classID").value === classID) {
+        startHour = 8;
+        startMin = "05";
+        endHour = 16;
+        endMin = 50;
+    }
+    if (scheduleType === "student" && document.getElementById("classID").value !== classID) {
         startHour = 8;
         startMin = 25;
         endHour = 16;
