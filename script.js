@@ -995,6 +995,8 @@ var getFoods = function () {
     });
 };
 
+$('form').submit(false);
+
 //Run all necessary functions before viewing the page
 setDefaultValues();
 displayDefaultValues();
