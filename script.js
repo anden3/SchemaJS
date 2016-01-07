@@ -995,9 +995,26 @@ var getFoods = function () {
     });
 };
 
+var guid = function () {
+    var s4 = function () {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+}
+
 var updateCounter = function (json) {
+    if (readCookie("UUID") === null || readCookie("UUID") === "" || typeof readCookie("UUID") === "undefined") {
+        createCookie("UUID", guid(), 365);
+    }
+
+    if (localStorage.getItem("uuid") === null || localStorage.getItem("uuid") === "" || typeof localStorage.getItem("uuid") === "undefined") {
+        localStorage.setItem("uuid", readCookie("UUID"));
+    }
+
     $.post("update_counter.php", {
-        ip: json.ip
+        ip: json.ip,
+        uuid: readCookie("UUID")
     });
 }
 
