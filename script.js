@@ -995,6 +995,12 @@ var getFoods = function () {
     });
 };
 
+var updateCounter = function (json) {
+    $.post("update_counter.php", {
+        ip: json.ip
+    });
+}
+
 $('form').submit(false);
 
 //Run all necessary functions before viewing the page
