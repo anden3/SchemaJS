@@ -191,7 +191,7 @@ var displayDefaultValues = function () {
 var progressBar = function () {
     var now = new Date(),
         dd = ('0' + now.getDate()).slice(-2),
-        mm = (parseInt(('0' + now.getMonth()).slice(-2)) + 1).toString(),
+        mm = ('0' + (now.getMonth() + 1)).slice(-2),
         yyyy = now.getFullYear(),
 
         startHour,
@@ -241,7 +241,7 @@ var progressBar = function () {
     var timeBetween = endTime - startTime,
         percentComplete = (now - startTime) / timeBetween,
         pixelDistance = (scheduleHeight - (window.innerHeight / 9.5)) * percentComplete,
-        correction = window.innerHeight * 0.09;
+        correction = window.innerHeight * 0.115;
 
     if (percentComplete < 1 && percentComplete > 0 && days[now.getActualDay()] === currentDay && !noWeeks) {
         bar.style.display = "block";
