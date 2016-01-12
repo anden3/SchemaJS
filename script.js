@@ -602,6 +602,7 @@ var eventListeners = function () {
                     togglePopup(1, settings);
                 }
                 getImage();
+                progressBar();
             }
         }
         else {
@@ -609,6 +610,7 @@ var eventListeners = function () {
                 togglePopup(1, settings);
             }
             getImage();
+            progressBar();
         }
     });
 
