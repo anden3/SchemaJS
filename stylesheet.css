@@ -3,7 +3,7 @@ body{margin:0;position:absolute;top:0;left:0;right:0;bottom:0;}
 .header div ul{box-shadow:0 12px 15px 0 rgba(0, 0, 0, 0.24);padding:0;}
 .header button{color:white;position:relative;padding:0;margin:0 0 0 1vh;float:left;height:6vh;width:6vh;}
 .header i{font-size:6vh;padding:0;margin:0 0 0 -1.5vh;}
-.header h3{position:absolute;transform:translate(-50%, -50%);left:50%;color:white;padding:0;font-size:4vh;line-height:6vh;}
+.header h3{position:absolute;transform:translate(-50%, 0);margin:0 0 0 0;left:50%;color:white;padding:0;font-size:4vh;line-height:6vh;}
 #food{padding:0;position:absolute;top:6vh;z-index:1;width:100%;height:6vh;background-color:#3F51B5;text-align:center;display:none;box-shadow:0 8px 17px 0 rgba(0, 0, 0, 0.2);}
 #food *{font-size:2vh;vertical-align:middle;line-height:6vh;z-index:10;color:white;white-space:nowrap;}
 #schedule{margin-top:6vh;width:100%;height:88%;z-index:0;}
