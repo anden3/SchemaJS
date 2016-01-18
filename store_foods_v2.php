@@ -18,7 +18,7 @@ if (mysqli_connect_errno()) {
     die("Failed to connect to MySQL: " . mysqli_connect_error());
 }
 
-$stmt = mysqli_prepare($con, "INSERT INTO newfood (School, Year, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?, ?);");
+$stmt = mysqli_prepare($con, "INSERT INTO food (School, Year, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?, ?);");
 $query = "SELECT ID, FoodID FROM schools WHERE FoodID IS NOT NULL AND ID = 29540 ORDER BY ID LIMIT 1;";
 
 $t1 = microtime(true);

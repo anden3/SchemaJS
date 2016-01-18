@@ -2,6 +2,7 @@
 
 ini_set("default_charset", 'utf-8');
 header('Content-Type: text/plain; charset=utf-8');
+date_default_timezone_set("Europe/Stockholm");
 
 $year = date("Y");
 $pass = rtrim(file_get_contents("sql_pass.txt"));
@@ -15,7 +16,7 @@ if (mysqli_connect_errno()) {
 
 if ($_POST) {
     $school = $_POST['school'];
-    $query = "SELECT * FROM newfood WHERE School = $school AND Year = $year ORDER BY Week ASC, FIELD(Day, 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag');";
+    $query = "SELECT * FROM food WHERE School = $school AND Year = $year ORDER BY Week ASC, FIELD(Day, 'Måndag', 'Tisdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lördag', 'Söndag');";
 
     if ($result = mysqli_query($con, $query)) {
         while ($object = mysqli_fetch_object($result)) {
