@@ -12,7 +12,7 @@ header('Content-Type: text/html; charset=utf8mb4_swedish_ci');
 $con = mysqli_connect("mysql513.loopia.se", "98anve32@k132604", $pass, "kodlabb_se_db_6_db_7_db_2_db_13");
 
 //Set the correct charset
-mysqli_set_charset($con,"utf8mb4");
+mysqli_set_charset($con, "utf8mb4");
 
 //If the server failed to connect, echo an error message
 if (mysqli_connect_errno()) {
@@ -20,8 +20,13 @@ if (mysqli_connect_errno()) {
 }
 
 $query = "SELECT Name, ID FROM schools;";
-
 $stmt = mysqli_prepare($con, "INSERT INTO food (School, Week, Day, Mat, ID) VALUES (?, ?, ?, ?, ?);");
+
+$specialChars = ["å", "ä", "ö", "é", "è", " & ", " ", "/"];
+$replaceChars = ["a", "a", "o", "e", "", "-", "-", "-"];
+
+$replaceValues = ["[CDATA[", "]]", "( ", " )", "/ "];
+$replacementValues = ["", "", "(", ")", "/"];
 
 //Run the query, and save the results in an object
 if ($result = mysqli_query($con, $query)) {
@@ -79,9 +84,6 @@ if ($result = mysqli_query($con, $query)) {
 
         $school = mb_strtolower($school, "UTF-8");
 
-        $specialChars = ["å", "ä", "ö", "é", "è", " & ", " ", "/"];
-        $replaceChars = ["a", "a", "o", "e", "", "-", "-", "-"];
-
         $school = str_replace($specialChars, $replaceChars, $school);
 
         $school = trim($school);
@@ -97,9 +99,6 @@ if ($result = mysqli_query($con, $query)) {
                 $foodDay = $titleItems[0];
 
                 $foodDesc = $item->description;
-
-                $replaceValues = ["[CDATA[", "]]", "( ", " )", "/ "];
-                $replacementValues = ["", "", "(", ")", "/"];
 
                 $foodDesc = str_replace($replaceValues, $replacementValues, $foodDesc);
 
