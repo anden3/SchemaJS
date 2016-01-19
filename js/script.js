@@ -396,16 +396,22 @@ var submitSettings = function (direction) {
     changeOptions(scheduleType + "Radio");
 
     if (scheduleType === "student") {
+
         //Checks if the year in the userID is written using four numbers, and if so, decreases it to two numbers
         if (userID.length > 11) {
             userID = userID.substring(2, userID.length);
-            document.getElementById("userID").value = userID;
         }
 
         //Checks if the userID has a dash in it, and if not, it adds one
         if (userID.substring(userID.length - 5, userID.length - 4) !== "-" && userID !== "") {
             userID = userID.substring(0, userID.length - 4) + "-" + userID.substring(userID.length - 4, userID.length);
-            document.getElementById("userID").value = userID;
+        }
+
+        if (!!returnPersonalNumber(userID)) {
+            document.getElementById("userID").value = returnPersonalNumber(userID);
+        }
+        else {
+            document.getElementById("userID").value = "";
         }
 
         //Converts classID to only uppercase letters
@@ -650,7 +656,7 @@ var eventListeners = function () {
                         table = event.target.id.substring(0, event.target.id.length - 2) + "s";
                     }
 
-                    $.post("search_sql.php", {
+                    $.post("php/search_sql.php", {
                         data: event.target.value,
                         table: table,
                         school: schoolID,
@@ -683,7 +689,7 @@ var eventListeners = function () {
                     table = event.target.id.substring(0, event.target.id.length - 2) + "s";
                 }
 
-                $.post("search_sql.php", {
+                $.post("php/search_sql.php", {
                     data: event.target.value,
                     table: table,
                     school: schoolID,
@@ -933,7 +939,7 @@ var swipedetect = function (el, callback) {
 //Function to get the foods from the SQL-database
 var getFoods = function () {
     //Gets the food data from the get_foods.php file
-    $.post("get_foods.php", {
+    $.post("php/get_foods.php", {
         school: schoolID
     }, function (data) {
         if (data !== "") {
@@ -1016,7 +1022,7 @@ var updateCounter = function (json) {
         localStorage.setItem("uuid", readCookie("UUID"));
     }
 
-    $.post("update_counter.php", {
+    $.post("php/update_counter.php", {
         ip: json.ip,
         uuid: readCookie("UUID")
     });
