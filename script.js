@@ -101,17 +101,19 @@ var setDefaultValues = function () {
     //Ensures the proper radio button is checked
     if (readCookie("IDTYPE") !== null) {
         IDType = readCookie("IDTYPE");
-        if (IDType.length >= 10) {
+        if (IDType.length >= 10 && IDType.indexOf(',') === -1) {
             document.getElementById("userRadio").checked = true;
-        } else {
+        }
+        else {
             document.getElementById("classRadio").checked = true;
         }
     }
     else if (localStorage.IDType !== null && typeof localStorage.IDType !== "undefined") {
         IDType = localStorage.IDType;
-        if (IDType.length >= 10) {
+        if (IDType.length >= 10 && IDType.indexOf(',') === -1) {
             document.getElementById("userRadio").checked = true;
-        } else {
+        }
+        else {
             document.getElementById("classRadio").checked = true;
         }
     }
