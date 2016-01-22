@@ -396,7 +396,6 @@ var submitSettings = function (direction) {
     changeOptions(scheduleType + "Radio");
 
     if (scheduleType === "student") {
-
         //Checks if the year in the userID is written using four numbers, and if so, decreases it to two numbers
         if (userID.length > 11) {
             userID = userID.substring(2, userID.length);
