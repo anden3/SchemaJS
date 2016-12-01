@@ -16,23 +16,23 @@
     <!-- iOS Safari -->
     <meta name="apple-mobile-web-app-status-bar-style" content="#3F51B5">
 
-    <title>SchemaJS</title>
+    <title>Skolinfo</title>
+    <link type="text/css" rel="stylesheet" href="css/mdl.css">
 
     <!--Importing jQuery and Google Material Design libraries-->
     <script type="text/javascript" src="js/jquery-2.1.4.js"></script>
-
-    <link type="text/css" rel="stylesheet" href="css/mdl.css">
     <script src="js/material.min.js" async></script>
 
-    <script type="text/javascript" src="js/script.js" charset="utf-8" defer></script>
     <link type="text/css" rel="stylesheet" href="css/stylesheet.css">
+
+    <script type="text/javascript" src="js/script.js" charset="utf-8" defer></script>
 
     <script type="application/javascript" src="https://api.ipify.org?format=jsonp&callback=updateCounter" defer></script>
 </head>
 
 <body id="body">
     <div class="header" id="header">
-        <h3>SchemaJS</h3>
+        <h3>Skolinfo</h3>
         <button id="mainMenu" class="mdl-button mdl-js-button mdl-button--icon clickable">
             <i class="material-icons">more_vert</i>
         </button>
@@ -65,7 +65,7 @@
             </div>
             <div class="row">
                 <p>Vecka: </p>
-                <form action="#">
+                <form action="#" autocomplete="off">
                     <div class="mdl-textfield mdl-js-textfield">
                         <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="week" />
                         <label class="mdl-textfield__label" for="week" id="weekLabel"></label>
@@ -76,7 +76,7 @@
             <div class="schoolOptions option">
                 <div class="row">
                     <p>Skola: </p>
-                    <form action="#">
+                    <form action="#" autocomplete="off">
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input" type="text" id="schoolID" />
                         </div>
@@ -113,7 +113,7 @@
             <div class="studentOptions option">
                 <div class="row">
                     <p>Personnummer: </p>
-                    <form action="#" method="post">
+                    <form action="#" method="post" autocomplete="off">
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input" type="text" id="userID" />
                             <label class="mdl-textfield__label" for="userID" id="userIDLabel"></label>
@@ -123,7 +123,7 @@
                 <div class="classOptions option">
                     <div class="row">
                         <p>Klass-ID: </p>
-                        <form action="#">
+                        <form action="#" autocomplete="off">
                             <div class="mdl-textfield mdl-js-textfield">
                                 <input class="mdl-textfield__input" type="text" id="classID" />
                                 <label class="mdl-textfield__label" for="classID" id="classIDLabel"></label>
@@ -150,7 +150,7 @@
             <div class="roomOptions option">
                 <div class="row">
                     <p>Sal: </p>
-                    <form action="#">
+                    <form action="#" autocomplete="off">
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input" type="text" id="roomID" />
                             <label class="mdl-textfield__label" for="roomID" id="roomIDLabel"></label>
@@ -161,7 +161,7 @@
             <div class="teacherOptions option">
                 <div class="row">
                     <p>Lärare: </p>
-                    <form action="#">
+                    <form action="#" autocomplete="off">
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input" type="text" id="teacherID" name="" />
                             <label class="mdl-textfield__label" for="teacherID" id="teacherIDLabel"></label>
@@ -172,7 +172,7 @@
             <div class="subjectOptions option">
                 <div class="row">
                     <p>Ämne: </p>
-                    <form action="#">
+                    <form action="#" autocomplete="off">
                         <div class="mdl-textfield mdl-js-textfield">
                             <input class="mdl-textfield__input" type="text" id="subjectID" />
                             <label class="mdl-textfield__label" for="subjectID" id="subjectIDLabel"></label>
@@ -200,7 +200,8 @@
     <div class="consent-banner" id="consent-banner">
         <div class="row">
             <h4>Cookies</h4>
-            <p>Denna sida använder cookies för att spara information som t.ex. skola, klass och schematyp.<br>Tryck på knappen till höger för att acceptera användandet av cookies.</p>
+            <p>Denna sida använder cookies för att spara information som t.ex. skola, klass och schematyp.<br>
+            Tryck på knappen till höger för att acceptera användandet av cookies.</p>
         </div>
         <div class="cookie-button">
             <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored clickable" id="cookie-accept">Acceptera</button>

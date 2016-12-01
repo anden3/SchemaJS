@@ -22,10 +22,12 @@ var header = document.getElementById("header"),
     lastNumbersArr = [0, 0, 0, 0],
 
     is_touch_device = 'ontouchstart' in document.documentElement,
+    browserIsEdge = /Edge./i.test(navigator.userAgent),
     screenOrientation = ($(window).width() > $(window).height())? 90 : 0,
 
     popupVisible = false,
     schoolChanged = false,
+    cookiesFound = false,
     noWeeks = null,
 
     days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag", "Vecka"],
@@ -76,24 +78,24 @@ var setDefaultValues = function () {
     var cookies = ["schoolID", "schoolName", "scheduleType", "userID", "classID", "roomID", "teacherName", "teacherID", "subjectID"];
 
     for (var i = 0; i < cookies.length; i++) {
-        var value = cookies[i],
-            upper = value.toUpperCase();
+        var value = cookies[i];
+        var cookie = readCookie(value.toUpperCase());
+        var localStore = localStorage.getItem(value);
 
-        if (readCookie(upper) !== null && readCookie(upper) !== "") {
-            window[value] = readCookie(upper);
+        if (cookie !== null && cookie !== "") {
+            cookiesFound = true;
+            window[value] = cookie;
         }
-        else if (localStorage.getItem(value) !== null && localStorage.getItem(value) !== "" && typeof localStorage.getItem(value) !== "undefined") {
-            window[value] = localStorage.getItem(value);
+        else if (localStore !== null && localStore !== "") {
+            cookiesFound = true;
+            window[value] = localStore;
         }
         else {
-            if (value !== "schoolID" && value !== "scheduleType") {
-                window[value] = "";
-            }
-            else if (value === "schoolID") {
-                window[value] = "";
-            }
-            else if (value === "scheduleType") {
+            if (value === "scheduleType") {
                 window[value] = "student";
+            }
+            else {
+                window[value] = "";
             }
         }
     }
@@ -196,37 +198,24 @@ var progressBar = function () {
         mm = ('0' + (now.getMonth() + 1)).slice(-2),
         yyyy = now.getFullYear(),
 
-        startHour,
-        startMin,
-        endHour,
-        endMin,
+        startHour = 8,
+        startMin = 25,
+        endHour = 16,
+        endMin = 50,
 
         offset = 0,
 
         bar = document.getElementById("progress");
 
     if (scheduleType == "student" && document.getElementById("classID").value === IDType) {
-        startHour = 8;
         startMin = "05";
-        endHour = 16;
-        endMin = 50;
-    }
-    if (scheduleType === "student" && document.getElementById("classID").value !== IDType) {
-        startHour = 8;
-        startMin = 25;
-        endHour = 16;
-        endMin = 50;
     }
     else if (scheduleType === "teacher") {
-        startHour = 8;
         startMin = 15;
         endHour = 17;
         endMin = "00";
     }
     else if (scheduleType === "room") {
-        startHour = 8;
-        startMin = 25;
-        endHour = 16;
         endMin = 10;
     }
 
@@ -304,35 +293,6 @@ var setImage = function (ID, width, height) {
     if (typeof ID !== "undefined") {
         //Returns the image
         var url = "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=" + week + "&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
-
-        //Checking for error pages, and if so, tries to get image without week variable. Currently disabled due to not being needed.
-        /*
-        if (noWeeks === null) {
-            $.post("get_color.php", {
-                url: url
-            }, function (data) {
-                if (data === "FFFFCC") {
-                    noWeeks = true;
-                    $("#progress").css("display", "none");
-                    setImage(ID, width, height);
-                }
-                else {
-                    noWeeks = false;
-                    setImage(ID, width, height);
-                }
-            });
-        }
-
-        else if (noWeeks) {
-            var url = "http://www.novasoftware.se/ImgGen/schedulegenerator.aspx?format=png&schoolid=" + schoolID + "/sv-se&type=-1&id=" + ID + "&period=&week=&mode=1&printer=0&colors=32&head=0&clock=1&foot=0&day=" + today + "&width=" + width + "&height=" + height + "&maxwidth=" + width + "&maxheight=" + height;
-
-            background.style.backgroundImage = 'url(' + url + ')';
-        }
-        else if (!noWeeks) {
-            background.style.backgroundImage = 'url(' + url + ')';
-        }
-        */
-
         background.style.backgroundImage = 'url(' + url + ')';
     }
     else {
@@ -362,15 +322,21 @@ var togglePopup = function (toggle, div) {
         //Setting the settings window to the middle of the screen
         div.style.left = (window.innerWidth - divWidth.substring(0, divWidth.length - 2)) / 2 + "px";
         div.style.top = (Math.round((headerHeight / window.innerHeight) * 100) + 1.8) + "vh";
-        background.style.webkitFilter = "blur(2px)"; //Blurring the background
-        document.getElementById("progress").style.webkitFilter = "blur(2px)";
+
+        if (!browserIsEdge) {
+            background.style.webkitFilter = "blur(2px)"; //Blurring the background
+            document.getElementById("progress").style.webkitFilter = "blur(2px)";
+        }
     }
 
     else if (toggle === 0) {
         popupVisible = false;
         div.style.display = "none";
-        background.style.webkitFilter = "blur(0)";
-        document.getElementById("progress").style.webkitFilter = "blur(0)";
+
+        if (!browserIsEdge) {
+            background.style.webkitFilter = "blur(0px)";
+            document.getElementById("progress").style.webkitFilter = "blur(0)";
+        }
 
         if ($(".searchResults").length) {
             $(".searchResults").each(function () {
@@ -518,6 +484,11 @@ var submitSettings = function (direction) {
         noWeeks = null;
         getFoods();
         schoolChanged = false;
+    }
+
+    if (!cookiesFound) {
+        cookiesFound = true;
+        togglePopup(1, settings);
     }
 };
 

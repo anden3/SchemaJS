@@ -13,8 +13,8 @@ $new_days = ["Måndag", "Tisdag", "Onsdag", "Torsdag", "Fredag"];
 $string_errors = ["( ", " )", " /", "/ ", "  "];
 $string_fixes = ["(", ")", "/", "/", " "];
 
-$startWeek = 1;
-$endWeek = 30;
+$startWeek = 33;
+$endWeek = 52;
 
 $offsetStart = $startWeek - intval(date('W'));
 $offsetEnd = $endWeek - intval(date('W'));
